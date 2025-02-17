@@ -2,6 +2,10 @@ import Foundation
 
 @MainActor
 class BaseConverterViewModel: ObservableObject {
+    // Constants for validation
+    private let minValue = -1_000_000_000
+    private let maxValue = 1_000_000_000
+    
     @Published var base2Input = "" {
         didSet {
             if oldValue != base2Input {
@@ -35,6 +39,7 @@ class BaseConverterViewModel: ObservableObject {
     }
     
     @Published var errorMessage: String?
+    @Published var validationMessage: String?
     
     // Input validation flags
     @Published var isBase2Valid = true
@@ -43,10 +48,10 @@ class BaseConverterViewModel: ObservableObject {
     @Published var isBase16Valid = true
     
     // Validation patterns
-    private let base2Pattern = "^[01]*$"
-    private let base10Pattern = "^[0-9]*$"
-    private let base12Pattern = "^[0-9AB]*$"
-    private let base16Pattern = "^[0-9A-F]*$"
+    private let base2Pattern = "^-?[01]+$"
+    private let base10Pattern = "^-?[0-9]+$"
+    private let base12Pattern = "^-?[0-9AB]+$"
+    private let base16Pattern = "^-?[0-9A-F]+$"
     
     // Flag to prevent recursive updates
     private var isUpdating = false
@@ -61,10 +66,35 @@ class BaseConverterViewModel: ObservableObject {
         guard !input.isEmpty else {
             clearOtherInputs(except: base)
             errorMessage = nil
+            validationMessage = nil
+            return
+        }
+        
+        // Remove leading zeros while preserving negative sign
+        let cleanedInput = cleanInput(input)
+        
+        // If the input was cleaned, update it
+        if cleanedInput != input {
+            switch base {
+            case 2: base2Input = cleanedInput
+            case 10: base10Input = cleanedInput
+            case 12: base12Input = cleanedInput
+            case 16: base16Input = cleanedInput
+            default: break
+            }
             return
         }
         
         do {
+            // First convert to decimal to check range
+            let decimal = try BaseConverter.toDecimal(string: input, from: base)
+            
+            // Validate range
+            guard decimal >= minValue && decimal <= maxValue else {
+                errorMessage = "Number must be between \(minValue) and \(maxValue)"
+                return
+            }
+            
             // Convert to other bases
             if base != 2 {
                 base2Input = try BaseConverter.convert(input: input, from: base, to: 2)
@@ -78,13 +108,45 @@ class BaseConverterViewModel: ObservableObject {
             if base != 16 {
                 base16Input = try BaseConverter.convert(input: input, from: base, to: 16)
             }
+            
             errorMessage = nil
+            updateValidationMessage(for: decimal)
         } catch BaseConverterError.invalidInput {
             errorMessage = "Invalid input for base \(base)"
+            validationMessage = nil
         } catch BaseConverterError.overflow {
             errorMessage = "Number is too large"
+            validationMessage = nil
         } catch {
             errorMessage = "Conversion error"
+            validationMessage = nil
+        }
+    }
+    
+    private func cleanInput(_ input: String) -> String {
+        // Handle empty input
+        guard !input.isEmpty else { return input }
+        
+        // Preserve negative sign
+        let isNegative = input.hasPrefix("-")
+        var cleanedInput = isNegative ? String(input.dropFirst()) : input
+        
+        // Remove leading zeros
+        while cleanedInput.hasPrefix("0") && cleanedInput.count > 1 {
+            cleanedInput = String(cleanedInput.dropFirst())
+        }
+        
+        // Add back negative sign if needed
+        return isNegative ? "-\(cleanedInput)" : cleanedInput
+    }
+    
+    private func updateValidationMessage(for decimal: Int) {
+        if decimal == 0 {
+            validationMessage = "Zero"
+        } else if decimal > 0 {
+            validationMessage = "Positive integer"
+        } else {
+            validationMessage = "Negative integer"
         }
     }
     
@@ -126,6 +188,7 @@ class BaseConverterViewModel: ObservableObject {
         base12Input = ""
         base16Input = ""
         errorMessage = nil
+        validationMessage = nil
         updateValidation()
     }
 } 
