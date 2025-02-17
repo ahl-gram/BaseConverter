@@ -185,4 +185,134 @@ final class BaseConverterViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.errorMessage)
         XCTAssertNil(viewModel.validationMessage)
     }
+    
+    func testAddition() async {
+        // Test addition in base 10
+        viewModel.base10Input = "15"
+        viewModel.startOperation(.add, from: 10)
+        viewModel.secondOperand = "7"
+        viewModel.performOperation()
+        XCTAssertEqual(viewModel.operationResult, "22")
+        
+        // Test addition in base 2
+        viewModel.base2Input = "1010"  // 10 in decimal
+        viewModel.startOperation(.add, from: 2)
+        viewModel.secondOperand = "101"  // 5 in decimal
+        viewModel.performOperation()
+        XCTAssertEqual(viewModel.operationResult, "1111")  // 15 in decimal
+        
+        // Test addition with negative numbers
+        viewModel.base10Input = "-15"
+        viewModel.startOperation(.add, from: 10)
+        viewModel.secondOperand = "7"
+        viewModel.performOperation()
+        XCTAssertEqual(viewModel.operationResult, "-8")
+    }
+    
+    func testSubtraction() async {
+        // Test subtraction in base 10
+        viewModel.base10Input = "15"
+        viewModel.startOperation(.subtract, from: 10)
+        viewModel.secondOperand = "7"
+        viewModel.performOperation()
+        XCTAssertEqual(viewModel.operationResult, "8")
+        
+        // Test subtraction in base 16
+        viewModel.base16Input = "FF"  // 255 in decimal
+        viewModel.startOperation(.subtract, from: 16)
+        viewModel.secondOperand = "F"  // 15 in decimal
+        viewModel.performOperation()
+        XCTAssertEqual(viewModel.operationResult, "F0")  // 240 in decimal
+        
+        // Test subtraction with negative result
+        viewModel.base10Input = "7"
+        viewModel.startOperation(.subtract, from: 10)
+        viewModel.secondOperand = "15"
+        viewModel.performOperation()
+        XCTAssertEqual(viewModel.operationResult, "-8")
+    }
+    
+    func testMultiplication() async {
+        // Test multiplication in base 10
+        viewModel.base10Input = "15"
+        viewModel.startOperation(.multiply, from: 10)
+        viewModel.secondOperand = "7"
+        viewModel.performOperation()
+        XCTAssertEqual(viewModel.operationResult, "105")
+        
+        // Test multiplication in base 12
+        viewModel.base12Input = "A"  // 10 in decimal
+        viewModel.startOperation(.multiply, from: 12)
+        viewModel.secondOperand = "3"
+        viewModel.performOperation()
+        XCTAssertEqual(viewModel.operationResult, "24")  // 30 in decimal
+        
+        // Test multiplication with negative numbers
+        viewModel.base10Input = "-15"
+        viewModel.startOperation(.multiply, from: 10)
+        viewModel.secondOperand = "7"
+        viewModel.performOperation()
+        XCTAssertEqual(viewModel.operationResult, "-105")
+    }
+    
+    func testDivision() async {
+        // Test division in base 10
+        viewModel.base10Input = "15"
+        viewModel.startOperation(.divide, from: 10)
+        viewModel.secondOperand = "3"
+        viewModel.performOperation()
+        XCTAssertEqual(viewModel.operationResult, "5")
+        
+        // Test division in base 2
+        viewModel.base2Input = "1010"  // 10 in decimal
+        viewModel.startOperation(.divide, from: 2)
+        viewModel.secondOperand = "10"  // 2 in decimal
+        viewModel.performOperation()
+        XCTAssertEqual(viewModel.operationResult, "101")  // 5 in decimal
+        
+        // Test division with negative numbers
+        viewModel.base10Input = "-15"
+        viewModel.startOperation(.divide, from: 10)
+        viewModel.secondOperand = "3"
+        viewModel.performOperation()
+        XCTAssertEqual(viewModel.operationResult, "-5")
+    }
+    
+    func testDivisionByZero() async {
+        viewModel.base10Input = "15"
+        viewModel.startOperation(.divide, from: 10)
+        viewModel.secondOperand = "0"
+        viewModel.performOperation()
+        XCTAssertEqual(viewModel.errorMessage, "Cannot divide by zero")
+        XCTAssertNil(viewModel.operationResult)
+    }
+    
+    func testOperationOverflow() async {
+        // Test addition overflow
+        viewModel.base10Input = "1000000000"
+        viewModel.startOperation(.add, from: 10)
+        viewModel.secondOperand = "1"
+        viewModel.performOperation()
+        XCTAssertEqual(viewModel.errorMessage, "Result is too large")
+        
+        // Test multiplication overflow
+        viewModel.base10Input = "1000000000"
+        viewModel.startOperation(.multiply, from: 10)
+        viewModel.secondOperand = "2"
+        viewModel.performOperation()
+        XCTAssertEqual(viewModel.errorMessage, "Result is too large")
+    }
+    
+    func testOperationReset() async {
+        viewModel.base10Input = "15"
+        viewModel.startOperation(.add, from: 10)
+        viewModel.secondOperand = "7"
+        viewModel.performOperation()
+        XCTAssertNotNil(viewModel.operationResult)
+        
+        viewModel.reset()
+        XCTAssertNil(viewModel.operationResult)
+        XCTAssertEqual(viewModel.secondOperand, "")
+        XCTAssertEqual(viewModel.base10Input, "")
+    }
 } 

@@ -86,7 +86,7 @@ struct ContentView: View {
                 Section(header: Text("Operations")) {
                     HStack {
                         Button(action: {
-                            // Add action
+                            viewModel.startOperation(.add, from: 10)
                         }) {
                             Image(systemName: "plus.circle.fill")
                             Text("Add")
@@ -97,7 +97,7 @@ struct ContentView: View {
                         Spacer()
                         
                         Button(action: {
-                            // Subtract action
+                            viewModel.startOperation(.subtract, from: 10)
                         }) {
                             Image(systemName: "minus.circle.fill")
                             Text("Subtract")
@@ -108,7 +108,7 @@ struct ContentView: View {
                     
                     HStack {
                         Button(action: {
-                            // Multiply action
+                            viewModel.startOperation(.multiply, from: 10)
                         }) {
                             Image(systemName: "multiply.circle.fill")
                             Text("Multiply")
@@ -119,13 +119,22 @@ struct ContentView: View {
                         Spacer()
                         
                         Button(action: {
-                            // Divide action
+                            viewModel.startOperation(.divide, from: 10)
                         }) {
                             Image(systemName: "divide.circle.fill")
                             Text("Divide")
                         }
                         .accessibilityLabel("Divide numbers")
                         .disabled(viewModel.errorMessage != nil)
+                    }
+                }
+                
+                if let result = viewModel.operationResult {
+                    Section(header: Text("Result")) {
+                        Text(result)
+                            .font(.title2)
+                            .foregroundColor(.blue)
+                            .accessibilityLabel("Operation result")
                     }
                 }
             }
@@ -139,6 +148,46 @@ struct ContentView: View {
                     .accessibilityLabel("Reset all fields")
                 }
             }
+            .sheet(isPresented: $viewModel.showingOperationSheet) {
+                OperationView(viewModel: viewModel)
+            }
+        }
+    }
+}
+
+struct OperationView: View {
+    @ObservedObject var viewModel: BaseConverterViewModel
+    @Environment(\.dismiss) var dismiss
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Enter Second Number")) {
+                    TextField("Second operand", text: $viewModel.secondOperand)
+                        .keyboardType(.numberPad)
+                        .accessibilityLabel("Second operand input field")
+                }
+                
+                if let errorMessage = viewModel.errorMessage {
+                    Section {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .accessibilityLabel("Operation error message")
+                    }
+                }
+                
+                Section {
+                    Button("Calculate") {
+                        viewModel.performOperation()
+                        dismiss()
+                    }
+                    .disabled(viewModel.secondOperand.isEmpty)
+                }
+            }
+            .navigationTitle("Arithmetic Operation")
+            .navigationBarItems(trailing: Button("Cancel") {
+                dismiss()
+            })
         }
     }
 }

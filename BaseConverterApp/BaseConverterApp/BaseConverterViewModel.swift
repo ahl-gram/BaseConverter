@@ -40,12 +40,32 @@ class BaseConverterViewModel: ObservableObject {
     
     @Published var errorMessage: String?
     @Published var validationMessage: String?
+    @Published var operationResult: String?
+    @Published var showingOperationSheet = false
+    @Published var secondOperand = ""
     
     // Input validation flags
     @Published var isBase2Valid = true
     @Published var isBase10Valid = true
     @Published var isBase12Valid = true
     @Published var isBase16Valid = true
+    
+    // Operation state
+    private var currentOperation: Operation?
+    private var selectedBase: Int?
+    
+    enum Operation {
+        case add, subtract, multiply, divide
+        
+        var symbol: String {
+            switch self {
+            case .add: return "+"
+            case .subtract: return "-"
+            case .multiply: return "×"
+            case .divide: return "÷"
+            }
+        }
+    }
     
     // Validation patterns
     private let base2Pattern = "^-?[01]+$"
@@ -123,6 +143,97 @@ class BaseConverterViewModel: ObservableObject {
         }
     }
     
+    func startOperation(_ operation: Operation, from base: Int) {
+        currentOperation = operation
+        selectedBase = base
+        secondOperand = ""
+        operationResult = nil
+        errorMessage = nil
+        showingOperationSheet = true
+    }
+    
+    func performOperation() {
+        guard let operation = currentOperation,
+              let base = selectedBase else {
+            return
+        }
+        
+        do {
+            // Get first operand from the current input
+            let firstOperand: String
+            switch base {
+            case 2: firstOperand = base2Input
+            case 10: firstOperand = base10Input
+            case 12: firstOperand = base12Input
+            case 16: firstOperand = base16Input
+            default: return
+            }
+            
+            // Convert both operands to decimal
+            let decimal1 = try BaseConverter.toDecimal(string: firstOperand, from: base)
+            let decimal2 = try BaseConverter.toDecimal(string: secondOperand, from: base)
+            
+            // Perform the operation
+            let result: Int
+            switch operation {
+            case .add:
+                guard !willOverflow(decimal1, plus: decimal2) else {
+                    throw BaseConverterError.overflow
+                }
+                result = decimal1 + decimal2
+                
+            case .subtract:
+                guard !willOverflow(decimal1, minus: decimal2) else {
+                    throw BaseConverterError.overflow
+                }
+                result = decimal1 - decimal2
+                
+            case .multiply:
+                guard !willOverflow(decimal1, times: decimal2) else {
+                    throw BaseConverterError.overflow
+                }
+                result = decimal1 * decimal2
+                
+            case .divide:
+                if decimal2 == 0 {
+                    errorMessage = "Cannot divide by zero"
+                    return
+                }
+                result = decimal1 / decimal2
+            }
+            
+            // Validate result range
+            guard result >= minValue && result <= maxValue else {
+                throw BaseConverterError.overflow
+            }
+            
+            // Convert result back to the original base
+            operationResult = try BaseConverter.fromDecimal(result, to: base)
+            errorMessage = nil
+            
+        } catch BaseConverterError.invalidInput {
+            errorMessage = "Invalid input for base \(base)"
+        } catch BaseConverterError.overflow {
+            errorMessage = "Result is too large"
+        } catch {
+            errorMessage = "Operation error"
+        }
+    }
+    
+    private func willOverflow(_ a: Int, plus b: Int) -> Bool {
+        return (b > 0 && a > Int.max - b) || (b < 0 && a < Int.min - b)
+    }
+    
+    private func willOverflow(_ a: Int, minus b: Int) -> Bool {
+        return (b < 0 && a > Int.max + b) || (b > 0 && a < Int.min + b)
+    }
+    
+    private func willOverflow(_ a: Int, times b: Int) -> Bool {
+        if b == 0 { return false }
+        let product = a * b
+        return product / b != a
+    }
+    
     private func cleanInput(_ input: String) -> String {
         // Handle empty input
         guard !input.isEmpty else { return input }
@@ -189,6 +300,10 @@ class BaseConverterViewModel: ObservableObject {
         base16Input = ""
         errorMessage = nil
         validationMessage = nil
+        operationResult = nil
+        secondOperand = ""
+        currentOperation = nil
+        selectedBase = nil
         updateValidation()
     }
 } 
