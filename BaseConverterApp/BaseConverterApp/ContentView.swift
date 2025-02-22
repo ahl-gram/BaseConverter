@@ -7,143 +7,178 @@
 
 import SwiftUI
 
+struct BaseInputStyle: ViewModifier {
+    let isValid: Bool
+    
+    func body(content: Content) -> some View {
+        content
+            .textFieldStyle(RoundedBorderTextFieldStyle())
+            .padding(8)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color(.systemBackground))
+                    .shadow(color: isValid ? .gray.opacity(0.2) : .red.opacity(0.2), radius: 4)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(isValid ? Color.gray.opacity(0.3) : Color.red, lineWidth: 1)
+            )
+    }
+}
+
+struct OperationButtonStyle: ButtonStyle {
+    let systemImage: String
+    let text: String
+    let isEnabled: Bool
+    
+    func makeBody(configuration: Configuration) -> some View {
+        HStack {
+            Image(systemName: systemImage)
+                .font(.title2)
+            Text(text)
+                .font(.body)
+        }
+        .frame(minWidth: 100)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(isEnabled ? Color.accentColor : Color.gray)
+                .opacity(configuration.isPressed ? 0.7 : 1.0)
+        )
+        .foregroundColor(.white)
+    }
+}
+
 struct ContentView: View {
     @StateObject private var viewModel = BaseConverterViewModel()
     
     var body: some View {
         NavigationView {
-            Form {
-                Section(header: Text("Number Bases")) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        TextField("Base 2 (Binary)", text: $viewModel.base2Input)
-                            .keyboardType(.numberPad)
-                            .accessibilityLabel("Base 2 input field")
-                            .foregroundColor(viewModel.isBase2Valid ? .primary : .red)
-                            .onChange(of: viewModel.base2Input) { _ in
-                                viewModel.updateValidation()
-                            }
-                        Text("Valid characters: 0, 1")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Number Bases Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Number Bases")
+                            .font(.headline)
+                            .padding(.horizontal)
+                        
+                        baseInputField(
+                            title: "Base 2 (Binary)",
+                            text: $viewModel.base2Input,
+                            isValid: viewModel.isBase2Valid,
+                            validCharacters: "0, 1",
+                            keyboardType: .numberPad
+                        )
+                        
+                        baseInputField(
+                            title: "Base 10 (Decimal)",
+                            text: $viewModel.base10Input,
+                            isValid: viewModel.isBase10Valid,
+                            validCharacters: "0-9",
+                            keyboardType: .numberPad
+                        )
+                        
+                        baseInputField(
+                            title: "Base 12 (Duodecimal)",
+                            text: $viewModel.base12Input,
+                            isValid: viewModel.isBase12Valid,
+                            validCharacters: "0-9, A, B",
+                            keyboardType: .asciiCapable
+                        )
+                        
+                        baseInputField(
+                            title: "Base 16 (Hexadecimal)",
+                            text: $viewModel.base16Input,
+                            isValid: viewModel.isBase16Valid,
+                            validCharacters: "0-9, A-F",
+                            keyboardType: .asciiCapable
+                        )
+                    }
+                    .padding(.vertical)
+                    
+                    // Messages Section
+                    VStack(spacing: 8) {
+                        if let errorMessage = viewModel.errorMessage {
+                            MessageView(
+                                message: errorMessage,
+                                type: .error
+                            )
+                        }
+                        
+                        if let validationMessage = viewModel.validationMessage {
+                            MessageView(
+                                message: validationMessage,
+                                type: .success
+                            )
+                        }
                     }
                     
-                    VStack(alignment: .leading, spacing: 4) {
-                        TextField("Base 10 (Decimal)", text: $viewModel.base10Input)
-                            .keyboardType(.numberPad)
-                            .accessibilityLabel("Base 10 input field")
-                            .foregroundColor(viewModel.isBase10Valid ? .primary : .red)
-                            .onChange(of: viewModel.base10Input) { _ in
-                                viewModel.updateValidation()
+                    // Operations Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Operations")
+                            .font(.headline)
+                            .padding(.horizontal)
+                        
+                        VStack(spacing: 12) {
+                            HStack(spacing: 20) {
+                                operationButton(
+                                    operation: .add,
+                                    systemImage: "plus.circle.fill",
+                                    text: "Add"
+                                )
+                                
+                                operationButton(
+                                    operation: .subtract,
+                                    systemImage: "minus.circle.fill",
+                                    text: "Subtract"
+                                )
                             }
-                        Text("Valid characters: 0-9")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            
+                            HStack(spacing: 20) {
+                                operationButton(
+                                    operation: .multiply,
+                                    systemImage: "multiply.circle.fill",
+                                    text: "Multiply"
+                                )
+                                
+                                operationButton(
+                                    operation: .divide,
+                                    systemImage: "divide.circle.fill",
+                                    text: "Divide"
+                                )
+                            }
+                        }
+                        .padding()
                     }
                     
-                    VStack(alignment: .leading, spacing: 4) {
-                        TextField("Base 12 (Duodecimal)", text: $viewModel.base12Input)
-                            .keyboardType(.asciiCapable)
-                            .accessibilityLabel("Base 12 input field")
-                            .foregroundColor(viewModel.isBase12Valid ? .primary : .red)
-                            .onChange(of: viewModel.base12Input) { _ in
-                                viewModel.updateValidation()
-                            }
-                        Text("Valid characters: 0-9, A, B")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        TextField("Base 16 (Hexadecimal)", text: $viewModel.base16Input)
-                            .keyboardType(.asciiCapable)
-                            .accessibilityLabel("Base 16 input field")
-                            .foregroundColor(viewModel.isBase16Valid ? .primary : .red)
-                            .onChange(of: viewModel.base16Input) { _ in
-                                viewModel.updateValidation()
-                            }
-                        Text("Valid characters: 0-9, A-F")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                
-                if let errorMessage = viewModel.errorMessage {
-                    Section {
-                        Text(errorMessage)
-                            .foregroundColor(.red)
-                            .accessibilityLabel("Error message")
-                    }
-                }
-                
-                if let validationMessage = viewModel.validationMessage {
-                    Section {
-                        Text(validationMessage)
-                            .foregroundColor(.green)
-                            .accessibilityLabel("Validation message")
-                    }
-                }
-                
-                Section(header: Text("Operations")) {
-                    HStack {
-                        Button(action: {
-                            viewModel.startOperation(.add, from: 10)
-                        }) {
-                            Image(systemName: "plus.circle.fill")
-                            Text("Add")
+                    // Result Section
+                    if let result = viewModel.operationResult {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Result")
+                                .font(.headline)
+                            
+                            Text(result)
+                                .font(.system(.title2, design: .monospaced))
+                                .foregroundColor(.blue)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color.blue.opacity(0.1))
+                                )
+                                .accessibilityLabel("Operation result")
                         }
-                        .accessibilityLabel("Add numbers")
-                        .disabled(viewModel.errorMessage != nil)
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            viewModel.startOperation(.subtract, from: 10)
-                        }) {
-                            Image(systemName: "minus.circle.fill")
-                            Text("Subtract")
-                        }
-                        .accessibilityLabel("Subtract numbers")
-                        .disabled(viewModel.errorMessage != nil)
-                    }
-                    
-                    HStack {
-                        Button(action: {
-                            viewModel.startOperation(.multiply, from: 10)
-                        }) {
-                            Image(systemName: "multiply.circle.fill")
-                            Text("Multiply")
-                        }
-                        .accessibilityLabel("Multiply numbers")
-                        .disabled(viewModel.errorMessage != nil)
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            viewModel.startOperation(.divide, from: 10)
-                        }) {
-                            Image(systemName: "divide.circle.fill")
-                            Text("Divide")
-                        }
-                        .accessibilityLabel("Divide numbers")
-                        .disabled(viewModel.errorMessage != nil)
+                        .padding()
                     }
                 }
-                
-                if let result = viewModel.operationResult {
-                    Section(header: Text("Result")) {
-                        Text(result)
-                            .font(.title2)
-                            .foregroundColor(.blue)
-                            .accessibilityLabel("Operation result")
-                    }
-                }
+                .padding()
             }
             .navigationTitle("Base Converter")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: viewModel.reset) {
-                        Image(systemName: "arrow.clockwise.circle.fill")
-                        Text("Reset")
+                        Label("Reset", systemImage: "arrow.clockwise.circle.fill")
                     }
                     .accessibilityLabel("Reset all fields")
                 }
@@ -153,6 +188,91 @@ struct ContentView: View {
             }
         }
     }
+    
+    private func baseInputField(
+        title: String,
+        text: Binding<String>,
+        isValid: Bool,
+        validCharacters: String,
+        keyboardType: UIKeyboardType
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            TextField(title, text: text)
+                .keyboardType(keyboardType)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .modifier(BaseInputStyle(isValid: isValid))
+                .onChange(of: text.wrappedValue) { _ in
+                    viewModel.updateValidation()
+                }
+            
+            Text("Valid characters: \(validCharacters)")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .padding(.horizontal)
+    }
+    
+    private func operationButton(
+        operation: BaseConverterViewModel.Operation,
+        systemImage: String,
+        text: String
+    ) -> some View {
+        Button(action: {
+            viewModel.startOperation(operation, from: 10)
+        }) {
+            EmptyView()
+        }
+        .buttonStyle(OperationButtonStyle(
+            systemImage: systemImage,
+            text: text,
+            isEnabled: viewModel.errorMessage == nil
+        ))
+        .disabled(viewModel.errorMessage != nil)
+        .accessibilityLabel("\(text) numbers")
+    }
+}
+
+struct MessageView: View {
+    let message: String
+    let type: MessageType
+    
+    enum MessageType {
+        case error
+        case success
+        
+        var color: Color {
+            switch self {
+            case .error: return .red
+            case .success: return .green
+            }
+        }
+        
+        var iconName: String {
+            switch self {
+            case .error: return "exclamationmark.triangle.fill"
+            case .success: return "checkmark.circle.fill"
+            }
+        }
+    }
+    
+    var body: some View {
+        HStack {
+            Image(systemName: type.iconName)
+            Text(message)
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(type.color.opacity(0.1))
+        )
+        .foregroundColor(type.color)
+        .padding(.horizontal)
+    }
 }
 
 struct OperationView: View {
@@ -161,28 +281,44 @@ struct OperationView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                Section(header: Text("Enter Second Number")) {
+            VStack(spacing: 20) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Enter Second Number")
+                        .font(.headline)
+                    
                     TextField("Second operand", text: $viewModel.secondOperand)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.numberPad)
+                        .modifier(BaseInputStyle(isValid: true))
                         .accessibilityLabel("Second operand input field")
                 }
+                .padding()
                 
                 if let errorMessage = viewModel.errorMessage {
-                    Section {
-                        Text(errorMessage)
-                            .foregroundColor(.red)
-                            .accessibilityLabel("Operation error message")
-                    }
+                    MessageView(
+                        message: errorMessage,
+                        type: .error
+                    )
                 }
                 
-                Section {
-                    Button("Calculate") {
-                        viewModel.performOperation()
-                        dismiss()
-                    }
-                    .disabled(viewModel.secondOperand.isEmpty)
+                Button(action: {
+                    viewModel.performOperation()
+                    dismiss()
+                }) {
+                    Text("Calculate")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(viewModel.secondOperand.isEmpty ? Color.gray : Color.accentColor)
+                        )
                 }
+                .disabled(viewModel.secondOperand.isEmpty)
+                .padding()
+                
+                Spacer()
             }
             .navigationTitle("Arithmetic Operation")
             .navigationBarItems(trailing: Button("Cancel") {
