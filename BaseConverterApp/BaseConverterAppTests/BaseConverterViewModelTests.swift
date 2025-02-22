@@ -23,7 +23,7 @@ final class BaseConverterViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.isBase10Valid)
         
         // Test Base 12 validation
-        viewModel.base12Input = "AB9"
+        viewModel.base12Input = "XE9"
         XCTAssertTrue(viewModel.isBase12Valid)
         viewModel.base12Input = "ABC"
         XCTAssertFalse(viewModel.isBase12Valid)
@@ -43,7 +43,7 @@ final class BaseConverterViewModelTests: XCTestCase {
         viewModel.base10Input = "-123"
         XCTAssertTrue(viewModel.isBase10Valid)
         
-        viewModel.base12Input = "-AB9"
+        viewModel.base12Input = "-XE9"
         XCTAssertTrue(viewModel.isBase12Valid)
         
         viewModel.base16Input = "-FF"
@@ -117,7 +117,7 @@ final class BaseConverterViewModelTests: XCTestCase {
         await Task.yield()
         
         XCTAssertEqual(viewModel.base10Input, "10")
-        XCTAssertEqual(viewModel.base12Input, "A")
+        XCTAssertEqual(viewModel.base12Input, "X")
         XCTAssertEqual(viewModel.base16Input, "A")
         XCTAssertNil(viewModel.errorMessage)
     }
@@ -133,7 +133,7 @@ final class BaseConverterViewModelTests: XCTestCase {
     }
     
     func testBase12InputConversion() async {
-        viewModel.base12Input = "A"
+        viewModel.base12Input = "X"
         await Task.yield()
         
         XCTAssertEqual(viewModel.base2Input, "1010")
@@ -241,7 +241,7 @@ final class BaseConverterViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.operationResult, "105")
         
         // Test multiplication in base 12
-        viewModel.base12Input = "A"  // 10 in decimal
+        viewModel.base12Input = "X"  // 10 in decimal
         viewModel.startOperation(.multiply, from: 12)
         viewModel.secondOperand = "3"
         viewModel.performOperation()
@@ -326,7 +326,7 @@ final class BaseConverterViewModelTests: XCTestCase {
         // Check that all bases are updated with the result (22)
         XCTAssertEqual(viewModel.base2Input, "10110")     // 22 in binary
         XCTAssertEqual(viewModel.base10Input, "22")       // 22 in decimal
-        XCTAssertEqual(viewModel.base12Input, "1A")       // 22 in duodecimal
+        XCTAssertEqual(viewModel.base12Input, "1X")       // 22 in duodecimal
         XCTAssertEqual(viewModel.base16Input, "16")       // 22 in hexadecimal
         XCTAssertEqual(viewModel.operationResult, "22")   // Result in original base (10)
         XCTAssertEqual(viewModel.validationMessage, "Positive integer")
@@ -350,7 +350,7 @@ final class BaseConverterViewModelTests: XCTestCase {
 
     func testMultiplicationUpdatesAllBases() async {
         // Perform multiplication in base 12
-        viewModel.base12Input = "A"       // 10 in decimal
+        viewModel.base12Input = "X"       // 10 in decimal
         viewModel.startOperation(.multiply, from: 12)
         viewModel.secondOperand = "3"      // 3 in decimal
         viewModel.performOperation()

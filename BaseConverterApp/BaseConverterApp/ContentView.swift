@@ -81,7 +81,7 @@ struct ContentView: View {
                             title: "Base 12 (Duodecimal)",
                             text: $viewModel.base12Input,
                             isValid: viewModel.isBase12Valid,
-                            validCharacters: "0-9, A, B"
+                            validCharacters: "0-9, X, E"
                         )
                         
                         baseInputField(

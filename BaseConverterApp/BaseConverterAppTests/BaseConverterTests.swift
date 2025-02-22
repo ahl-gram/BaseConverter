@@ -10,8 +10,8 @@ final class BaseConverterTests: XCTestCase {
     }
     
     func testDecimalToBase12() throws {
-        XCTAssertEqual(try BaseConverter.convert(input: "10", from: 10, to: 12), "A")
-        XCTAssertEqual(try BaseConverter.convert(input: "11", from: 10, to: 12), "B")
+        XCTAssertEqual(try BaseConverter.convert(input: "10", from: 10, to: 12), "X")
+        XCTAssertEqual(try BaseConverter.convert(input: "11", from: 10, to: 12), "E")
         XCTAssertEqual(try BaseConverter.convert(input: "12", from: 10, to: 12), "10")
         XCTAssertEqual(try BaseConverter.convert(input: "-12", from: 10, to: 12), "-10")
     }
@@ -31,8 +31,8 @@ final class BaseConverterTests: XCTestCase {
     }
     
     func testBase12ToDecimal() throws {
-        XCTAssertEqual(try BaseConverter.convert(input: "A", from: 12, to: 10), "10")
-        XCTAssertEqual(try BaseConverter.convert(input: "B", from: 12, to: 10), "11")
+        XCTAssertEqual(try BaseConverter.convert(input: "X", from: 12, to: 10), "10")
+        XCTAssertEqual(try BaseConverter.convert(input: "E", from: 12, to: 10), "11")
         XCTAssertEqual(try BaseConverter.convert(input: "10", from: 12, to: 10), "12")
         XCTAssertEqual(try BaseConverter.convert(input: "-10", from: 12, to: 10), "-12")
     }

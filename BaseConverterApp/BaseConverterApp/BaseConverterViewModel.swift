@@ -70,7 +70,7 @@ class BaseConverterViewModel: ObservableObject {
     // Validation patterns
     private let base2Pattern = "^-?[01]+$"
     private let base10Pattern = "^-?[0-9]+$"
-    private let base12Pattern = "^-?[0-9AB]+$"
+    private let base12Pattern = "^-?[0-9XE]+$"
     private let base16Pattern = "^-?[0-9A-F]+$"
     
     // Flag to prevent recursive updates

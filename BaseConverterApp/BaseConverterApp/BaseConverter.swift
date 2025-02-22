@@ -18,7 +18,7 @@ struct BaseConverter {
         let digits = Array(absString.uppercased())
         
         for digit in digits {
-            guard let value = digitToValue(digit) else {
+            guard let value = digitToValue(digit, base: base) else {
                 throw BaseConverterError.invalidInput
             }
             guard value < base else {
@@ -55,7 +55,7 @@ struct BaseConverter {
         
         while absNumber > 0 {
             let remainder = absNumber % base
-            digits.append(valueToDigit(remainder))
+            digits.append(valueToDigit(remainder, base: base))
             absNumber /= base
         }
         
@@ -74,21 +74,25 @@ struct BaseConverter {
     }
     
     // Helper function to convert a single digit to its decimal value
-    private static func digitToValue(_ digit: Character) -> Int? {
+    private static func digitToValue(_ digit: Character, base: Int) -> Int? {
         switch digit {
         case "0"..."9":
             return Int(String(digit))
-        case "A":
+        case "X" where base == 12:
             return 10
-        case "B":
+        case "E" where base == 12:
             return 11
-        case "C":
+        case "A" where base == 16:
+            return 10
+        case "B" where base == 16:
+            return 11
+        case "C" where base == 16:
             return 12
-        case "D":
+        case "D" where base == 16:
             return 13
-        case "E":
+        case "E" where base == 16:
             return 14
-        case "F":
+        case "F" where base == 16:
             return 15
         default:
             return nil
@@ -96,10 +100,18 @@ struct BaseConverter {
     }
     
     // Helper function to convert a decimal value to a digit
-    private static func valueToDigit(_ value: Int) -> String {
+    private static func valueToDigit(_ value: Int, base: Int) -> String {
         if value < 10 {
             return String(value)
+        } else if base == 12 {
+            // Special handling for base 12 digits
+            switch value {
+            case 10: return "X"
+            case 11: return "E"
+            default: return String(value)
+            }
         } else {
+            // For base 16, use A-F
             return String(Character(UnicodeScalar(55 + value)!))
         }
     }
