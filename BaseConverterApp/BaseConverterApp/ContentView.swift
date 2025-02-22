@@ -236,14 +236,50 @@ struct ContentView: View {
                 OperationView(viewModel: viewModel)
             }
             .onAppear {
-                focusedField = .base10  // Focus decimal input by default
+                focusedField = .base10
             }
             .onChange(of: focusedField) { _ in
                 viewModel.updateValidation()
             }
-            .keyboardShortcut("w", modifiers: .command) // Close sheet if open
         }
-        .keyboardShortcuts()
+        .commands {
+            CommandGroup(after: .pasteboard) {
+                Button("Add") {
+                    if viewModel.errorMessage == nil {
+                        viewModel.startOperation(.add, from: 10)
+                    }
+                }
+                .keyboardShortcut("+", modifiers: .command)
+                
+                Button("Subtract") {
+                    if viewModel.errorMessage == nil {
+                        viewModel.startOperation(.subtract, from: 10)
+                    }
+                }
+                .keyboardShortcut("-", modifiers: .command)
+                
+                Button("Multiply") {
+                    if viewModel.errorMessage == nil {
+                        viewModel.startOperation(.multiply, from: 10)
+                    }
+                }
+                .keyboardShortcut("*", modifiers: .command)
+                
+                Button("Divide") {
+                    if viewModel.errorMessage == nil {
+                        viewModel.startOperation(.divide, from: 10)
+                    }
+                }
+                .keyboardShortcut("/", modifiers: .command)
+                
+                Divider()
+                
+                Button("Reset") {
+                    viewModel.reset()
+                }
+                .keyboardShortcut("r", modifiers: .command)
+            }
+        }
     }
     
     private var canMoveToPreviousField: Bool {
@@ -338,36 +374,6 @@ struct ContentView: View {
         ))
         .disabled(viewModel.errorMessage != nil)
         .accessibilityLabel("\(text) numbers")
-    }
-}
-
-extension View {
-    func keyboardShortcuts() -> some View {
-        self
-            .keyboardShortcut("+", modifiers: .command) { // Add
-                if let viewModel = (self as? ContentView)?._viewModel,
-                   viewModel.errorMessage == nil {
-                    viewModel.startOperation(.add, from: 10)
-                }
-            }
-            .keyboardShortcut("-", modifiers: .command) { // Subtract
-                if let viewModel = (self as? ContentView)?._viewModel,
-                   viewModel.errorMessage == nil {
-                    viewModel.startOperation(.subtract, from: 10)
-                }
-            }
-            .keyboardShortcut("*", modifiers: .command) { // Multiply
-                if let viewModel = (self as? ContentView)?._viewModel,
-                   viewModel.errorMessage == nil {
-                    viewModel.startOperation(.multiply, from: 10)
-                }
-            }
-            .keyboardShortcut("/", modifiers: .command) { // Divide
-                if let viewModel = (self as? ContentView)?._viewModel,
-                   viewModel.errorMessage == nil {
-                    viewModel.startOperation(.divide, from: 10)
-                }
-            }
     }
 }
 
