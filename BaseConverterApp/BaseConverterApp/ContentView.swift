@@ -9,6 +9,7 @@ import SwiftUI
 
 struct BaseInputStyle: ViewModifier {
     let isValid: Bool
+    let themeColor: Color
     
     func body(content: Content) -> some View {
         content
@@ -17,12 +18,28 @@ struct BaseInputStyle: ViewModifier {
             .background(
                 RoundedRectangle(cornerRadius: 10)
                     .fill(Color(uiColor: .systemBackground))
-                    .shadow(color: isValid ? .gray.opacity(0.2) : .red.opacity(0.2), radius: 4)
+                    .shadow(color: isValid ? themeColor.opacity(0.2) : .red.opacity(0.2), radius: 4)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(isValid ? Color.gray.opacity(0.3) : Color.red, lineWidth: 1)
+                    .stroke(isValid ? themeColor.opacity(0.5) : Color.red, lineWidth: 1)
             )
+    }
+}
+
+struct OperationTheme {
+    static let add = Color.green
+    static let subtract = Color.red
+    static let multiply = Color.blue
+    static let divide = Color.orange
+    
+    static func color(for operation: BaseConverterViewModel.Operation) -> Color {
+        switch operation {
+        case .add: return add
+        case .subtract: return subtract
+        case .multiply: return multiply
+        case .divide: return divide
+        }
     }
 }
 
@@ -30,6 +47,7 @@ struct OperationButtonStyle: ButtonStyle {
     let systemImage: String
     let text: String
     let isEnabled: Bool
+    let color: Color
     
     func makeBody(configuration: Configuration) -> some View {
         HStack {
@@ -43,11 +61,18 @@ struct OperationButtonStyle: ButtonStyle {
         .padding(.horizontal, 16)
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(isEnabled ? Color.accentColor : Color.gray)
+                .fill(isEnabled ? color : Color.gray)
                 .opacity(configuration.isPressed ? 0.7 : 1.0)
         )
         .foregroundColor(.white)
     }
+}
+
+struct BaseTheme {
+    static let binary = Color.blue       // Binary feels technical, blue is appropriate
+    static let decimal = Color.green     // Decimal is standard/natural, green works well
+    static let duodecimal = Color.purple // Duodecimal is special/unique, purple fits
+    static let hexadecimal = Color.orange // Hex is often used in web/design, orange is creative
 }
 
 struct ContentView: View {
@@ -67,28 +92,32 @@ struct ContentView: View {
                             title: "Base 2 (Binary)",
                             text: $viewModel.base2Input,
                             isValid: viewModel.isBase2Valid,
-                            validCharacters: "0, 1"
+                            validCharacters: "0, 1",
+                            themeColor: BaseTheme.binary
                         )
                         
                         baseInputField(
                             title: "Base 10 (Decimal)",
                             text: $viewModel.base10Input,
                             isValid: viewModel.isBase10Valid,
-                            validCharacters: "0-9"
+                            validCharacters: "0-9",
+                            themeColor: BaseTheme.decimal
                         )
                         
                         baseInputField(
                             title: "Base 12 (Duodecimal)",
                             text: $viewModel.base12Input,
                             isValid: viewModel.isBase12Valid,
-                            validCharacters: "0-9, X, E"
+                            validCharacters: "0-9, X, E",
+                            themeColor: BaseTheme.duodecimal
                         )
                         
                         baseInputField(
                             title: "Base 16 (Hexadecimal)",
                             text: $viewModel.base16Input,
                             isValid: viewModel.isBase16Valid,
-                            validCharacters: "0-9, A-F"
+                            validCharacters: "0-9, A-F",
+                            themeColor: BaseTheme.hexadecimal
                         )
                     }
                     .padding(.vertical)
@@ -189,25 +218,26 @@ struct ContentView: View {
         title: String,
         text: Binding<String>,
         isValid: Bool,
-        validCharacters: String
+        validCharacters: String,
+        themeColor: Color
     ) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(themeColor)
             
             TextField(title, text: text)
                 .textInputAutocapitalization(.never)
                 .disableAutocorrection(true)
                 .textFieldStyle(.roundedBorder)
-                .modifier(BaseInputStyle(isValid: isValid))
+                .modifier(BaseInputStyle(isValid: isValid, themeColor: themeColor))
                 .onChange(of: text.wrappedValue) { _ in
                     viewModel.updateValidation()
                 }
             
             Text("Valid characters: \(validCharacters)")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(themeColor.opacity(0.8))
         }
         .padding(.horizontal)
     }
@@ -225,7 +255,8 @@ struct ContentView: View {
         .buttonStyle(OperationButtonStyle(
             systemImage: systemImage,
             text: text,
-            isEnabled: viewModel.errorMessage == nil
+            isEnabled: viewModel.errorMessage == nil,
+            color: OperationTheme.color(for: operation)
         ))
         .disabled(viewModel.errorMessage != nil)
         .accessibilityLabel("\(text) numbers")
@@ -253,18 +284,30 @@ struct MessageView: View {
             case .success: return "checkmark.circle.fill"
             }
         }
+        
+        var backgroundColor: Color {
+            switch self {
+            case .error: return Color.red.opacity(0.1)
+            case .success: return Color.green.opacity(0.1)
+            }
+        }
     }
     
     var body: some View {
         HStack {
             Image(systemName: type.iconName)
             Text(message)
+                .foregroundColor(type.color)
         }
         .padding()
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(type.color.opacity(0.1))
+                .fill(type.backgroundColor)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(type.color.opacity(0.2), lineWidth: 1)
         )
         .foregroundColor(type.color)
         .padding(.horizontal)
@@ -286,7 +329,7 @@ struct OperationView: View {
                         .textFieldStyle(.roundedBorder)
                         .textInputAutocapitalization(.never)
                         .disableAutocorrection(true)
-                        .modifier(BaseInputStyle(isValid: true))
+                        .modifier(BaseInputStyle(isValid: true, themeColor: .accentColor))
                         .accessibilityLabel("Second operand input field")
                 }
                 .padding()
