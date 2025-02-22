@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct BaseInputStyle: ViewModifier {
     let isValid: Bool
@@ -30,6 +31,7 @@ struct OperationButtonStyle: ButtonStyle {
     let systemImage: String
     let text: String
     let isEnabled: Bool
+    let shortcut: String?
     
     func makeBody(configuration: Configuration) -> some View {
         HStack {
@@ -37,6 +39,12 @@ struct OperationButtonStyle: ButtonStyle {
                 .font(.title2)
             Text(text)
                 .font(.body)
+            if let shortcut = shortcut {
+                Spacer()
+                Text(shortcut)
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.7))
+            }
         }
         .frame(minWidth: 100)
         .padding(.vertical, 8)
@@ -52,6 +60,11 @@ struct OperationButtonStyle: ButtonStyle {
 
 struct ContentView: View {
     @StateObject private var viewModel = BaseConverterViewModel()
+    @FocusState private var focusedField: InputField?
+    
+    enum InputField {
+        case base2, base10, base12, base16
+    }
     
     var body: some View {
         NavigationView {
@@ -68,7 +81,8 @@ struct ContentView: View {
                             text: $viewModel.base2Input,
                             isValid: viewModel.isBase2Valid,
                             validCharacters: "0, 1",
-                            keyboardType: .numberPad
+                            keyboardType: .numberPad,
+                            field: .base2
                         )
                         
                         baseInputField(
@@ -76,7 +90,8 @@ struct ContentView: View {
                             text: $viewModel.base10Input,
                             isValid: viewModel.isBase10Valid,
                             validCharacters: "0-9",
-                            keyboardType: .numberPad
+                            keyboardType: .numberPad,
+                            field: .base10
                         )
                         
                         baseInputField(
@@ -84,7 +99,8 @@ struct ContentView: View {
                             text: $viewModel.base12Input,
                             isValid: viewModel.isBase12Valid,
                             validCharacters: "0-9, A, B",
-                            keyboardType: .asciiCapable
+                            keyboardType: .asciiCapable,
+                            field: .base12
                         )
                         
                         baseInputField(
@@ -92,7 +108,8 @@ struct ContentView: View {
                             text: $viewModel.base16Input,
                             isValid: viewModel.isBase16Valid,
                             validCharacters: "0-9, A-F",
-                            keyboardType: .asciiCapable
+                            keyboardType: .asciiCapable,
+                            field: .base16
                         )
                     }
                     .padding(.vertical)
@@ -125,13 +142,15 @@ struct ContentView: View {
                                 operationButton(
                                     operation: .add,
                                     systemImage: "plus.circle.fill",
-                                    text: "Add"
+                                    text: "Add",
+                                    shortcut: "⌘+"
                                 )
                                 
                                 operationButton(
                                     operation: .subtract,
                                     systemImage: "minus.circle.fill",
-                                    text: "Subtract"
+                                    text: "Subtract",
+                                    shortcut: "⌘-"
                                 )
                             }
                             
@@ -139,13 +158,15 @@ struct ContentView: View {
                                 operationButton(
                                     operation: .multiply,
                                     systemImage: "multiply.circle.fill",
-                                    text: "Multiply"
+                                    text: "Multiply",
+                                    shortcut: "⌘*"
                                 )
                                 
                                 operationButton(
                                     operation: .divide,
                                     systemImage: "divide.circle.fill",
-                                    text: "Divide"
+                                    text: "Divide",
+                                    shortcut: "⌘/"
                                 )
                             }
                         }
@@ -168,6 +189,13 @@ struct ContentView: View {
                                         .fill(Color.blue.opacity(0.1))
                                 )
                                 .accessibilityLabel("Operation result")
+                                .contextMenu {
+                                    Button(action: {
+                                        UIPasteboard.general.string = result
+                                    }) {
+                                        Label("Copy Result", systemImage: "doc.on.doc")
+                                    }
+                                }
                         }
                         .padding()
                     }
@@ -180,12 +208,81 @@ struct ContentView: View {
                     Button(action: viewModel.reset) {
                         Label("Reset", systemImage: "arrow.clockwise.circle.fill")
                     }
+                    .keyboardShortcut("r", modifiers: .command)
                     .accessibilityLabel("Reset all fields")
+                }
+                
+                ToolbarItem(placement: .keyboard) {
+                    HStack {
+                        Button(action: moveToPreviousField) {
+                            Image(systemName: "chevron.up")
+                        }
+                        .disabled(!canMoveToPreviousField)
+                        
+                        Button(action: moveToNextField) {
+                            Image(systemName: "chevron.down")
+                        }
+                        .disabled(!canMoveToNextField)
+                        
+                        Spacer()
+                        
+                        Button("Done") {
+                            focusedField = nil
+                        }
+                    }
                 }
             }
             .sheet(isPresented: $viewModel.showingOperationSheet) {
                 OperationView(viewModel: viewModel)
             }
+            .onAppear {
+                focusedField = .base10  // Focus decimal input by default
+            }
+            .onChange(of: focusedField) { _ in
+                viewModel.updateValidation()
+            }
+            .keyboardShortcut("w", modifiers: .command) // Close sheet if open
+        }
+        .keyboardShortcuts()
+    }
+    
+    private var canMoveToPreviousField: Bool {
+        guard let current = focusedField else { return false }
+        switch current {
+        case .base2: return false
+        case .base10: return true
+        case .base12: return true
+        case .base16: return true
+        }
+    }
+    
+    private var canMoveToNextField: Bool {
+        guard let current = focusedField else { return false }
+        switch current {
+        case .base2: return true
+        case .base10: return true
+        case .base12: return true
+        case .base16: return false
+        }
+    }
+    
+    private func moveToPreviousField() {
+        guard let current = focusedField else { return }
+        switch current {
+        case .base2: break
+        case .base10: focusedField = .base2
+        case .base12: focusedField = .base10
+        case .base16: focusedField = .base12
+        }
+    }
+    
+    private func moveToNextField() {
+        guard let current = focusedField else { return }
+        switch current {
+        case .base2: focusedField = .base10
+        case .base10: focusedField = .base12
+        case .base12: focusedField = .base16
+        case .base16: break
         }
     }
     
@@ -194,7 +291,8 @@ struct ContentView: View {
         text: Binding<String>,
         isValid: Bool,
         validCharacters: String,
-        keyboardType: UIKeyboardType
+        keyboardType: UIKeyboardType,
+        field: InputField
     ) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
@@ -202,11 +300,16 @@ struct ContentView: View {
                 .foregroundColor(.secondary)
             
             TextField(title, text: text)
+                .focused($focusedField, equals: field)
                 .keyboardType(keyboardType)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .modifier(BaseInputStyle(isValid: isValid))
                 .onChange(of: text.wrappedValue) { _ in
                     viewModel.updateValidation()
+                }
+                .submitLabel(.next)
+                .onSubmit {
+                    moveToNextField()
                 }
             
             Text("Valid characters: \(validCharacters)")
@@ -219,7 +322,8 @@ struct ContentView: View {
     private func operationButton(
         operation: BaseConverterViewModel.Operation,
         systemImage: String,
-        text: String
+        text: String,
+        shortcut: String
     ) -> some View {
         Button(action: {
             viewModel.startOperation(operation, from: 10)
@@ -229,10 +333,41 @@ struct ContentView: View {
         .buttonStyle(OperationButtonStyle(
             systemImage: systemImage,
             text: text,
-            isEnabled: viewModel.errorMessage == nil
+            isEnabled: viewModel.errorMessage == nil,
+            shortcut: shortcut
         ))
         .disabled(viewModel.errorMessage != nil)
         .accessibilityLabel("\(text) numbers")
+    }
+}
+
+extension View {
+    func keyboardShortcuts() -> some View {
+        self
+            .keyboardShortcut("+", modifiers: .command) { // Add
+                if let viewModel = (self as? ContentView)?._viewModel,
+                   viewModel.errorMessage == nil {
+                    viewModel.startOperation(.add, from: 10)
+                }
+            }
+            .keyboardShortcut("-", modifiers: .command) { // Subtract
+                if let viewModel = (self as? ContentView)?._viewModel,
+                   viewModel.errorMessage == nil {
+                    viewModel.startOperation(.subtract, from: 10)
+                }
+            }
+            .keyboardShortcut("*", modifiers: .command) { // Multiply
+                if let viewModel = (self as? ContentView)?._viewModel,
+                   viewModel.errorMessage == nil {
+                    viewModel.startOperation(.multiply, from: 10)
+                }
+            }
+            .keyboardShortcut("/", modifiers: .command) { // Divide
+                if let viewModel = (self as? ContentView)?._viewModel,
+                   viewModel.errorMessage == nil {
+                    viewModel.startOperation(.divide, from: 10)
+                }
+            }
     }
 }
 
@@ -278,6 +413,7 @@ struct MessageView: View {
 struct OperationView: View {
     @ObservedObject var viewModel: BaseConverterViewModel
     @Environment(\.dismiss) var dismiss
+    @FocusState private var isInputFocused: Bool
     
     var body: some View {
         NavigationView {
@@ -287,10 +423,18 @@ struct OperationView: View {
                         .font(.headline)
                     
                     TextField("Second operand", text: $viewModel.secondOperand)
+                        .focused($isInputFocused)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.numberPad)
                         .modifier(BaseInputStyle(isValid: true))
                         .accessibilityLabel("Second operand input field")
+                        .submitLabel(.done)
+                        .onSubmit {
+                            if !viewModel.secondOperand.isEmpty {
+                                viewModel.performOperation()
+                                dismiss()
+                            }
+                        }
                 }
                 .padding()
                 
@@ -316,6 +460,7 @@ struct OperationView: View {
                         )
                 }
                 .disabled(viewModel.secondOperand.isEmpty)
+                .keyboardShortcut(.return, modifiers: .command)
                 .padding()
                 
                 Spacer()
@@ -323,7 +468,11 @@ struct OperationView: View {
             .navigationTitle("Arithmetic Operation")
             .navigationBarItems(trailing: Button("Cancel") {
                 dismiss()
-            })
+            }
+            .keyboardShortcut(.escape, modifiers: []))
+            .onAppear {
+                isInputFocused = true
+            }
         }
     }
 }
