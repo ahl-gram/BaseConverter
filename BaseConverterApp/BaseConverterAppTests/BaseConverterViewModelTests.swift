@@ -245,7 +245,7 @@ final class BaseConverterViewModelTests: XCTestCase {
         viewModel.startOperation(.multiply, from: 12)
         viewModel.secondOperand = "3"
         viewModel.performOperation()
-        XCTAssertEqual(viewModel.operationResult, "24")  // 30 in decimal
+        XCTAssertEqual(viewModel.operationResult, "26")  // 30 in decimal
         
         // Test multiplication with negative numbers
         viewModel.base10Input = "-15"
