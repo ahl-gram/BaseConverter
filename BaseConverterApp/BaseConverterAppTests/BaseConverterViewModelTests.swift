@@ -60,7 +60,7 @@ final class BaseConverterViewModelTests: XCTestCase {
         viewModel.base10Input = "1000000001"
         await Task.yield()
         XCTAssertNotNil(viewModel.errorMessage)
-        XCTAssertEqual(viewModel.errorMessage, "Number must be between -1000000000 and 1000000000")
+        XCTAssertEqual(viewModel.errorMessage, "Result must be between -1000000000 and 1000000000")
         
         // Test negative number within range
         viewModel.base10Input = "-1000000000"
@@ -293,14 +293,14 @@ final class BaseConverterViewModelTests: XCTestCase {
         viewModel.startOperation(.add, from: 10)
         viewModel.secondOperand = "1"
         viewModel.performOperation()
-        XCTAssertEqual(viewModel.errorMessage, "Result is too large")
+        XCTAssertEqual(viewModel.errorMessage, "Result must be between -1000000000 and 1000000000")
         
         // Test multiplication overflow
         viewModel.base10Input = "1000000000"
         viewModel.startOperation(.multiply, from: 10)
         viewModel.secondOperand = "2"
         viewModel.performOperation()
-        XCTAssertEqual(viewModel.errorMessage, "Result is too large")
+        XCTAssertEqual(viewModel.errorMessage, "Result must be between -1000000000 and 1000000000")
     }
     
     func testOperationReset() async {

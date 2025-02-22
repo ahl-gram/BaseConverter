@@ -111,8 +111,7 @@ class BaseConverterViewModel: ObservableObject {
             
             // Validate range
             guard decimal >= minValue && decimal <= maxValue else {
-                errorMessage = "Number must be between \(minValue) and \(maxValue)"
-                return
+                throw BaseConverterError.resultOutOfRange(min: minValue, max: maxValue)
             }
             
             // Convert to other bases
@@ -131,11 +130,9 @@ class BaseConverterViewModel: ObservableObject {
             
             errorMessage = nil
             updateValidationMessage(for: decimal)
-        } catch BaseConverterError.invalidInput {
-            errorMessage = "Invalid input for base \(base)"
-            validationMessage = nil
-        } catch BaseConverterError.overflow {
-            errorMessage = "Number is too large"
+            
+        } catch let error as BaseConverterError {
+            errorMessage = error.message
             validationMessage = nil
         } catch {
             errorMessage = "Conversion error"
@@ -196,15 +193,14 @@ class BaseConverterViewModel: ObservableObject {
                 
             case .divide:
                 if decimal2 == 0 {
-                    errorMessage = "Cannot divide by zero"
-                    return
+                    throw BaseConverterError.divisionByZero
                 }
                 result = decimal1 / decimal2
             }
             
             // Validate result range
             guard result >= minValue && result <= maxValue else {
-                throw BaseConverterError.overflow
+                throw BaseConverterError.resultOutOfRange(min: minValue, max: maxValue)
             }
             
             // Convert result to all bases and update the input fields
@@ -218,12 +214,12 @@ class BaseConverterViewModel: ObservableObject {
             errorMessage = nil
             updateValidationMessage(for: result)
             
-        } catch BaseConverterError.invalidInput {
-            errorMessage = "Invalid input for base \(base)"
-        } catch BaseConverterError.overflow {
-            errorMessage = "Result is too large"
+        } catch let error as BaseConverterError {
+            errorMessage = error.message
+            operationResult = nil
         } catch {
             errorMessage = "Operation error"
+            operationResult = nil
         }
     }
     

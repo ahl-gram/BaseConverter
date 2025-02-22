@@ -45,24 +45,77 @@ final class BaseConverterTests: XCTestCase {
     }
     
     func testInvalidInput() throws {
-        XCTAssertThrowsError(try BaseConverter.convert(input: "G", from: 16, to: 10))
-        XCTAssertThrowsError(try BaseConverter.convert(input: "2", from: 2, to: 10))
-        XCTAssertThrowsError(try BaseConverter.convert(input: "C", from: 12, to: 10))
+        // Test invalid digits for each base
+        var error = try? BaseConverter.convert(input: "2", from: 2, to: 10)
+        XCTAssertNil(error)
+        
+        do {
+            _ = try BaseConverter.convert(input: "G", from: 16, to: 10)
+            XCTFail("Expected error for invalid hex digit")
+        } catch BaseConverterError.invalidDigitForBase(let digit, let base) {
+            XCTAssertEqual(digit, "G")
+            XCTAssertEqual(base, 16)
+        }
+        
+        do {
+            _ = try BaseConverter.convert(input: "A", from: 12, to: 10)
+            XCTFail("Expected error for invalid base 12 digit")
+        } catch BaseConverterError.invalidDigitForBase(let digit, let base) {
+            XCTAssertEqual(digit, "A")
+            XCTAssertEqual(base, 12)
+        }
     }
     
     func testUnsupportedBase() throws {
-        XCTAssertThrowsError(try BaseConverter.convert(input: "10", from: 1, to: 10))
-        XCTAssertThrowsError(try BaseConverter.convert(input: "10", from: 10, to: 17))
+        do {
+            _ = try BaseConverter.convert(input: "10", from: 1, to: 10)
+            XCTFail("Expected error for base 1")
+        } catch BaseConverterError.unsupportedBase {
+            // Expected error
+        }
+        
+        do {
+            _ = try BaseConverter.convert(input: "10", from: 10, to: 17)
+            XCTFail("Expected error for base 17")
+        } catch BaseConverterError.unsupportedBase {
+            // Expected error
+        }
     }
     
     func testEmptyInput() throws {
-        XCTAssertEqual(try BaseConverter.convert(input: "", from: 10, to: 2), "0")
-        XCTAssertEqual(try BaseConverter.convert(input: "", from: 2, to: 16), "0")
+        do {
+            _ = try BaseConverter.toDecimal(string: "", from: 10)
+            XCTFail("Expected error for empty input")
+        } catch BaseConverterError.emptyInput {
+            // Expected error
+        }
+        
+        do {
+            _ = try BaseConverter.toDecimal(string: "-", from: 10)
+            XCTFail("Expected error for just negative sign")
+        } catch BaseConverterError.invalidInput {
+            // Expected error
+        }
     }
     
     func testOverflow() throws {
         // Test with a very large number that should cause overflow
         let largeBase2 = String(repeating: "1", count: 64)
         XCTAssertThrowsError(try BaseConverter.convert(input: largeBase2, from: 2, to: 10))
+    }
+    
+    func testErrorMessages() {
+        // Test error messages
+        XCTAssertEqual(BaseConverterError.invalidInput.message, "Invalid input format")
+        XCTAssertEqual(BaseConverterError.unsupportedBase.message, "Base must be between 2 and 16")
+        XCTAssertEqual(BaseConverterError.overflow.message, "Result is too large")
+        XCTAssertEqual(BaseConverterError.divisionByZero.message, "Cannot divide by zero")
+        XCTAssertEqual(BaseConverterError.emptyInput.message, "Input cannot be empty")
+        
+        let invalidDigitError = BaseConverterError.invalidDigitForBase(digit: "G", base: 16)
+        XCTAssertEqual(invalidDigitError.message, "Invalid digit 'G' for base 16")
+        
+        let rangeError = BaseConverterError.resultOutOfRange(min: -100, max: 100)
+        XCTAssertEqual(rangeError.message, "Result must be between -100 and 100")
     }
 } 

@@ -4,25 +4,50 @@ enum BaseConverterError: Error {
     case invalidInput
     case unsupportedBase
     case overflow
+    case invalidDigitForBase(digit: Character, base: Int)
+    case divisionByZero
+    case resultOutOfRange(min: Int, max: Int)
+    case emptyInput
+    
+    var message: String {
+        switch self {
+        case .invalidInput:
+            return "Invalid input format"
+        case .unsupportedBase:
+            return "Base must be between 2 and 16"
+        case .overflow:
+            return "Result is too large"
+        case .invalidDigitForBase(let digit, let base):
+            return "Invalid digit '\(digit)' for base \(base)"
+        case .divisionByZero:
+            return "Cannot divide by zero"
+        case .resultOutOfRange(let min, let max):
+            return "Result must be between \(min) and \(max)"
+        case .emptyInput:
+            return "Input cannot be empty"
+        }
+    }
 }
 
 struct BaseConverter {
     // Convert string in given base to decimal integer
     static func toDecimal(string: String, from base: Int) throws -> Int {
-        guard !string.isEmpty else { return 0 }
+        guard !string.isEmpty else { throw BaseConverterError.emptyInput }
+        guard base >= 2 && base <= 16 else { throw BaseConverterError.unsupportedBase }
         
         let isNegative = string.hasPrefix("-")
         let absString = isNegative ? String(string.dropFirst()) : string
+        guard !absString.isEmpty else { throw BaseConverterError.invalidInput }
         
         var result = 0
         let digits = Array(absString.uppercased())
         
         for digit in digits {
             guard let value = digitToValue(digit, base: base) else {
-                throw BaseConverterError.invalidInput
+                throw BaseConverterError.invalidDigitForBase(digit: digit, base: base)
             }
             guard value < base else {
-                throw BaseConverterError.invalidInput
+                throw BaseConverterError.invalidDigitForBase(digit: digit, base: base)
             }
             
             // Check for overflow before multiplying
