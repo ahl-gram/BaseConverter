@@ -315,4 +315,20 @@ final class BaseConverterViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.secondOperand, "")
         XCTAssertEqual(viewModel.base10Input, "")
     }
+    
+    func testAdditionUpdatesAllBases() async {
+        // Perform addition in base 10
+        viewModel.base10Input = "15"
+        viewModel.startOperation(.add, from: 10)
+        viewModel.secondOperand = "7"
+        viewModel.performOperation()
+        
+        // Check that all bases are updated with the result (22)
+        XCTAssertEqual(viewModel.base2Input, "10110")     // 22 in binary
+        XCTAssertEqual(viewModel.base10Input, "22")       // 22 in decimal
+        XCTAssertEqual(viewModel.base12Input, "1A")       // 22 in duodecimal
+        XCTAssertEqual(viewModel.base16Input, "16")       // 22 in hexadecimal
+        XCTAssertEqual(viewModel.operationResult, "22")   // Result in original base (10)
+        XCTAssertEqual(viewModel.validationMessage, "Positive integer")
+    }
 } 

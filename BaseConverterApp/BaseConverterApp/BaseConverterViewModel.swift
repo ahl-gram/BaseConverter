@@ -207,9 +207,16 @@ class BaseConverterViewModel: ObservableObject {
                 throw BaseConverterError.overflow
             }
             
-            // Convert result back to the original base
+            // Convert result to all bases and update the input fields
+            base2Input = try BaseConverter.fromDecimal(result, to: 2)
+            base10Input = try BaseConverter.fromDecimal(result, to: 10)
+            base12Input = try BaseConverter.fromDecimal(result, to: 12)
+            base16Input = try BaseConverter.fromDecimal(result, to: 16)
+            
+            // Store the result in the original base
             operationResult = try BaseConverter.fromDecimal(result, to: base)
             errorMessage = nil
+            updateValidationMessage(for: result)
             
         } catch BaseConverterError.invalidInput {
             errorMessage = "Invalid input for base \(base)"
