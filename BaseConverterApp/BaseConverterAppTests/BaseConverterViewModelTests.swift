@@ -331,4 +331,68 @@ final class BaseConverterViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.operationResult, "22")   // Result in original base (10)
         XCTAssertEqual(viewModel.validationMessage, "Positive integer")
     }
+    
+    func testSubtractionUpdatesAllBases() async {
+        // Perform subtraction in base 16
+        viewModel.base16Input = "1F"      // 31 in decimal
+        viewModel.startOperation(.subtract, from: 16)
+        viewModel.secondOperand = "A"      // 10 in decimal
+        viewModel.performOperation()
+        
+        // Check that all bases are updated with the result (21)
+        XCTAssertEqual(viewModel.base2Input, "10101")     // 21 in binary
+        XCTAssertEqual(viewModel.base10Input, "21")       // 21 in decimal
+        XCTAssertEqual(viewModel.base12Input, "19")       // 21 in duodecimal
+        XCTAssertEqual(viewModel.base16Input, "15")       // 21 in hexadecimal
+        XCTAssertEqual(viewModel.operationResult, "15")   // Result in original base (16)
+        XCTAssertEqual(viewModel.validationMessage, "Positive integer")
+    }
+
+    func testMultiplicationUpdatesAllBases() async {
+        // Perform multiplication in base 12
+        viewModel.base12Input = "A"       // 10 in decimal
+        viewModel.startOperation(.multiply, from: 12)
+        viewModel.secondOperand = "3"      // 3 in decimal
+        viewModel.performOperation()
+        
+        // Check that all bases are updated with the result (30)
+        XCTAssertEqual(viewModel.base2Input, "11110")     // 30 in binary
+        XCTAssertEqual(viewModel.base10Input, "30")       // 30 in decimal
+        XCTAssertEqual(viewModel.base12Input, "26")       // 30 in duodecimal
+        XCTAssertEqual(viewModel.base16Input, "1E")       // 30 in hexadecimal
+        XCTAssertEqual(viewModel.operationResult, "26")   // Result in original base (12)
+        XCTAssertEqual(viewModel.validationMessage, "Positive integer")
+    }
+
+    func testDivisionUpdatesAllBases() async {
+        // Perform division in base 2
+        viewModel.base2Input = "1100"     // 12 in decimal
+        viewModel.startOperation(.divide, from: 2)
+        viewModel.secondOperand = "11"     // 3 in decimal
+        viewModel.performOperation()
+        
+        // Check that all bases are updated with the result (4)
+        XCTAssertEqual(viewModel.base2Input, "100")       // 4 in binary
+        XCTAssertEqual(viewModel.base10Input, "4")        // 4 in decimal
+        XCTAssertEqual(viewModel.base12Input, "4")        // 4 in duodecimal
+        XCTAssertEqual(viewModel.base16Input, "4")        // 4 in hexadecimal
+        XCTAssertEqual(viewModel.operationResult, "100")  // Result in original base (2)
+        XCTAssertEqual(viewModel.validationMessage, "Positive integer")
+    }
+
+    func testNegativeResultUpdatesAllBases() async {
+        // Perform subtraction resulting in negative number
+        viewModel.base10Input = "5"
+        viewModel.startOperation(.subtract, from: 10)
+        viewModel.secondOperand = "8"
+        viewModel.performOperation()
+        
+        // Check that all bases are updated with the result (-3)
+        XCTAssertEqual(viewModel.base2Input, "-11")       // -3 in binary
+        XCTAssertEqual(viewModel.base10Input, "-3")       // -3 in decimal
+        XCTAssertEqual(viewModel.base12Input, "-3")       // -3 in duodecimal
+        XCTAssertEqual(viewModel.base16Input, "-3")       // -3 in hexadecimal
+        XCTAssertEqual(viewModel.operationResult, "-3")   // Result in original base (10)
+        XCTAssertEqual(viewModel.validationMessage, "Negative integer")
+    }
 } 
