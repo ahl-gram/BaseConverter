@@ -157,7 +157,10 @@ struct ContentView: View {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: viewModel.reset) {
                             Label("Reset", systemImage: "arrow.clockwise.circle.fill")
+                                .foregroundColor(Color.gray)
                         }
+                        .foregroundColor(Color.gray)
+                        .tint(Color.gray)
                         .accessibilityLabel("Reset all fields")
                     }
                     
