@@ -53,6 +53,15 @@ struct ContentView: View {
             }
         }
         
+        var displayValidCharacters: String {
+            switch self {
+            case .base2: return "0, 1"
+            case .base10: return "0-9"
+            case .base12: return "0-9, X, E"
+            case .base16: return "0-9, A-F"
+            }
+        }
+        
         var description: String {
             switch self {
             case .base2: return "Binary"
@@ -75,89 +84,89 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                ScrollView {
-                    VStack(spacing: 20) {
-                        // Number Bases Section
-                        VStack(alignment: .leading, spacing: 16) {
-                            baseInputField(
-                                title: "Base 2 (Binary)",
-                                text: $viewModel.base2Input,
-                                isValid: viewModel.isBase2Valid,
-                                validCharacters: "0, 1",
-                                themeColor: BaseTheme.binary,
-                                field: .base2
-                            )
-                            
-                            baseInputField(
-                                title: "Base 10 (Decimal)",
-                                text: $viewModel.base10Input,
-                                isValid: viewModel.isBase10Valid,
-                                validCharacters: "0-9",
-                                themeColor: BaseTheme.decimal,
-                                field: .base10
-                            )
-                            
-                            baseInputField(
-                                title: "Base 12 (Duodecimal)",
-                                text: $viewModel.base12Input,
-                                isValid: viewModel.isBase12Valid,
-                                validCharacters: "0-9, X, E",
-                                themeColor: BaseTheme.duodecimal,
-                                field: .base12
-                            )
-                            
-                            baseInputField(
-                                title: "Base 16 (Hexadecimal)",
-                                text: $viewModel.base16Input,
-                                isValid: viewModel.isBase16Valid,
-                                validCharacters: "0-9, A-F",
-                                themeColor: BaseTheme.hexadecimal,
-                                field: .base16
-                            )
+                // Wrap everything in a GeometryReader to get size information
+                GeometryReader { geometry in
+                    VStack(spacing: 0) {
+                        ScrollView {
+                            VStack(spacing: 10) {
+                                // Number Bases Section
+                                VStack(alignment: .leading, spacing: 8) {
+                                    baseInputField(
+                                        title: "Base 2 (Binary)",
+                                        text: $viewModel.base2Input,
+                                        isValid: viewModel.isBase2Valid,
+                                        field: .base2
+                                    )
+                                    
+                                    baseInputField(
+                                        title: "Base 10 (Decimal)",
+                                        text: $viewModel.base10Input,
+                                        isValid: viewModel.isBase10Valid,
+                                        field: .base10
+                                    )
+                                    
+                                    baseInputField(
+                                        title: "Base 12 (Duodecimal)",
+                                        text: $viewModel.base12Input,
+                                        isValid: viewModel.isBase12Valid,
+                                        field: .base12
+                                    )
+                                    
+                                    baseInputField(
+                                        title: "Base 16 (Hexadecimal)",
+                                        text: $viewModel.base16Input,
+                                        isValid: viewModel.isBase16Valid,
+                                        field: .base16
+                                    )
+                                }
+                                
+                                // Messages Section
+                                VStack(spacing: 8) {
+                                    if let errorMessage = viewModel.errorMessage {
+                                        MessageView(
+                                            message: errorMessage,
+                                            type: .error
+                                        )
+                                    }
+                                    
+                                    if let validationMessage = viewModel.validationMessage {
+                                        MessageView(
+                                            message: validationMessage,
+                                            type: .success
+                                        )
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                            // Set a fixed height for the content to ensure it doesn't fight with the keyboard
+                            .frame(minHeight: geometry.size.height * 0.4)
                         }
-                        .padding(.vertical)
+                        .navigationTitle("Base Converter")
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button(action: viewModel.reset) {
+                                    Label("Reset", systemImage: "arrow.clockwise.circle.fill")
+                                }
+                                .accessibilityLabel("Reset all fields")
+                            }
+                            
+                            // Add toolbar item to dismiss keyboard
+                            ToolbarItem(placement: .keyboard) {
+                                Button("Done") {
+                                    focusedField = nil
+                                }
+                            }
+                        }
                         
-                        // Messages Section
-                        VStack(spacing: 8) {
-                            if let errorMessage = viewModel.errorMessage {
-                                MessageView(
-                                    message: errorMessage,
-                                    type: .error
-                                )
-                            }
-                            
-                            if let validationMessage = viewModel.validationMessage {
-                                MessageView(
-                                    message: validationMessage,
-                                    type: .success
-                                )
-                            }
-                        }
-                    }
-                    .padding()
-                }
-                .navigationTitle("Base Converter")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: viewModel.reset) {
-                            Label("Reset", systemImage: "arrow.clockwise.circle.fill")
-                        }
-                        .accessibilityLabel("Reset all fields")
-                    }
-                    
-                    // Add toolbar item to dismiss keyboard
-                    ToolbarItem(placement: .keyboard) {
-                        Button("Done") {
-                            focusedField = nil
-                        }
+                        // Add the custom keyboard at the bottom
+                        CustomKeyboard(
+                            onKeyTap: handleKeyTap,
+                            focusedField: focusedField
+                        )
+                        // Let the keyboard take a reasonable portion of the screen
+                        .frame(height: geometry.size.height * 0.45)
                     }
                 }
-                
-                // Add the custom keyboard at the bottom
-                CustomKeyboard(
-                    onKeyTap: handleKeyTap,
-                    focusedField: focusedField
-                )
             }
         }
     }
@@ -166,30 +175,23 @@ struct ContentView: View {
         title: String,
         text: Binding<String>,
         isValid: Bool,
-        validCharacters: String,
-        themeColor: Color,
         field: BaseField
     ) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 2) {
             Text(title)
                 .font(.subheadline)
-                .foregroundColor(themeColor)
+                .foregroundColor(field.themeColor)
             
-            TextField(title, text: text)
+            TextField(text.wrappedValue.isEmpty ? "Valid characters: \(field.displayValidCharacters)" : "", text: text)
                 .textInputAutocapitalization(.never)
                 .disableAutocorrection(true)
                 .textFieldStyle(.roundedBorder)
-                .modifier(BaseInputStyle(isValid: isValid, themeColor: themeColor))
+                .modifier(BaseInputStyle(isValid: isValid, themeColor: field.themeColor))
                 .focused($focusedField, equals: field)
                 .onChange(of: text.wrappedValue) { _ in
                     viewModel.updateValidation()
                 }
-            
-            Text("Valid characters: \(validCharacters)")
-                .font(.caption)
-                .foregroundColor(themeColor.opacity(0.8))
         }
-        .padding(.horizontal)
     }
     
     // Handle key taps from the custom keyboard

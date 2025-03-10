@@ -15,10 +15,10 @@ struct CustomKeyboard: View {
         case "2", "3", "4", "5", "6", "7", "8", "9":
             // Used in base 10, 12, and 16
             return BaseTheme.decimal
-        case "X", "E":
+        case "X", "E_DUO": // Using E_DUO to distinguish duodecimal E
             // Used only in base 12
             return BaseTheme.duodecimal
-        case "A", "B", "C", "D", "F":
+        case "A", "B", "C", "D", "E_HEX", "F": // Using E_HEX to distinguish hexadecimal E
             // Used only in base 16
             return BaseTheme.hexadecimal
         default:
@@ -36,11 +36,38 @@ struct CustomKeyboard: View {
             return true // Backspace and negative are always valid
         }
         
-        return field.validCharacters.contains(key)
+        // Handle special cases for E
+        if key == "E_DUO" {
+            return field == .base12 // Only enabled for base 12
+        }
+        
+        if key == "E_HEX" {
+            return field == .base16 // Only enabled for base 16
+        }
+        
+        // For regular keys, check if they're in the valid characters list
+        let actualKey = key == "E_DUO" || key == "E_HEX" ? "E" : key // Convert back to regular E for validation
+        return field.validCharacters.contains(actualKey)
+    }
+    
+    // Helper to convert special key identifiers back to actual characters
+    private func displayKey(_ key: String) -> String {
+        switch key {
+        case "E_DUO", "E_HEX":
+            return "E"
+        default:
+            return key
+        }
+    }
+    
+    // Helper to send the correct key for taps
+    private func handleKeyTap(_ key: String) {
+        let actualKey = displayKey(key)
+        onKeyTap(actualKey)
     }
     
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 12) {
             // Show current mode at the top of the keyboard
             if let field = focusedField {
                 HStack {
@@ -65,74 +92,125 @@ struct CustomKeyboard: View {
             // Divider to separate keyboard from content
             Divider()
             
-            // First row: 0-9
-            HStack(spacing: 6) {
-                ForEach(0...9, id: \.self) { number in
+            // First row: 0-3
+            HStack(spacing: 8) {
+                ForEach(0...3, id: \.self) { number in
                     KeyButton(
                         key: "\(number)",
+                        displayText: "\(number)",
                         color: colorForKey("\(number)"),
-                        onTap: onKeyTap,
+                        onTap: handleKeyTap,
                         isEnabled: isKeyValid("\(number)")
                     )
                 }
             }
             
-            // Second row: Letters and special keys
+            // Second row: 4-7
+            HStack(spacing: 8) {
+                ForEach(4...7, id: \.self) { number in
+                    KeyButton(
+                        key: "\(number)",
+                        displayText: "\(number)",
+                        color: colorForKey("\(number)"),
+                        onTap: handleKeyTap,
+                        isEnabled: isKeyValid("\(number)")
+                    )
+                }
+            }
+            
+            // Third row: 8-9, X, E (duodecimal specific)
+            HStack(spacing: 8) {
+                // Numbers 8-9
+                ForEach(8...9, id: \.self) { number in
+                    KeyButton(
+                        key: "\(number)",
+                        displayText: "\(number)",
+                        color: colorForKey("\(number)"),
+                        onTap: handleKeyTap,
+                        isEnabled: isKeyValid("\(number)")
+                    )
+                }
+                
+                // Duodecimal specific keys
+                KeyButton(
+                    key: "X",
+                    displayText: "X",
+                    color: BaseTheme.duodecimal,
+                    onTap: handleKeyTap,
+                    isEnabled: isKeyValid("X")
+                )
+                
+                KeyButton(
+                    key: "E_DUO",
+                    displayText: "E",
+                    color: BaseTheme.duodecimal,
+                    onTap: handleKeyTap,
+                    isEnabled: isKeyValid("E_DUO")
+                )
+            }
+            
+            // Fourth row: Hexadecimal letters A-F
             HStack(spacing: 6) {
-                // Base 16 letters A-D
+                // Hex letters A-D
                 ForEach(["A", "B", "C", "D"], id: \.self) { letter in
                     KeyButton(
                         key: letter,
+                        displayText: letter,
                         color: BaseTheme.hexadecimal,
-                        onTap: onKeyTap,
+                        onTap: handleKeyTap,
                         isEnabled: isKeyValid(letter)
                     )
                 }
                 
-                // E key (used in both base 12 and 16, but use the duodecimal color as it's more specific)
+                // Hexadecimal E
                 KeyButton(
-                    key: "E",
-                    color: BaseTheme.duodecimal,
-                    onTap: onKeyTap,
-                    isEnabled: isKeyValid("E")
+                    key: "E_HEX",
+                    displayText: "E",
+                    color: BaseTheme.hexadecimal,
+                    onTap: handleKeyTap,
+                    isEnabled: isKeyValid("E_HEX")
                 )
                 
-                // F key (base 16)
+                // Hexadecimal F
                 KeyButton(
                     key: "F",
+                    displayText: "F",
                     color: BaseTheme.hexadecimal,
-                    onTap: onKeyTap,
+                    onTap: handleKeyTap,
                     isEnabled: isKeyValid("F")
                 )
-                
-                // X key (base 12)
-                KeyButton(
-                    key: "X",
-                    color: BaseTheme.duodecimal,
-                    onTap: onKeyTap,
-                    isEnabled: isKeyValid("X")
-                )
-                
+            }
+            
+            // Fifth row: Negative sign and Backspace
+            HStack(spacing: 8) {
                 // Negative sign button
                 KeyButton(
                     key: "-",
+                    displayText: "-",
                     color: Color.gray,
-                    onTap: onKeyTap,
+                    onTap: handleKeyTap,
                     isEnabled: focusedField != nil
                 )
                 
-                // Backspace button
+                // Backspace button - wider
                 Button(action: {
                     onKeyTap("⌫")
                 }) {
-                    Image(systemName: "delete.left")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
-                        .frame(width: 40, height: 40)
-                        .background(focusedField != nil ? Color.gray : Color.gray.opacity(0.3))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    HStack {
+                        Spacer()
+                        Image(systemName: "delete.left")
+                            .font(.system(size: 18, weight: .medium))
+                        Text("Backspace")
+                            .font(.system(size: 16))
+                        Spacer()
+                    }
+                    .foregroundColor(.white)
+                    .frame(height: 50)
+                    .background(focusedField != nil ? Color.gray : Color.gray.opacity(0.3))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .disabled(focusedField == nil)
+                .frame(maxWidth: .infinity)
             }
         }
         .padding(.horizontal)
@@ -145,6 +223,7 @@ struct CustomKeyboard: View {
 // Individual keyboard button
 struct KeyButton: View {
     let key: String
+    let displayText: String
     let color: Color
     let onTap: (String) -> Void
     var isEnabled: Bool = true
@@ -153,11 +232,11 @@ struct KeyButton: View {
         Button(action: {
             onTap(key)
         }) {
-            Text(key)
-                .font(.system(size: 18, weight: .semibold))
+            Text(displayText)
+                .font(.system(size: 22, weight: .semibold))
                 .foregroundColor(.white)
-                .frame(minWidth: 30, maxWidth: .infinity)
-                .frame(height: 40)
+                .frame(minWidth: 0, maxWidth: .infinity)
+                .frame(height: 50)
                 .background(isEnabled ? color : color.opacity(0.3))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
