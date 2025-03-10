@@ -7,7 +7,7 @@ struct CustomKeyboard: View {
     var focusedField: ContentView.BaseField?
     
     // Function to determine the color of each key based on what bases it's used in
-    private func colorForKey(_ key: String) -> Color {
+    func colorForKey(_ key: String) -> Color {
         switch key {
         case "0", "1":
             // Used in all bases, use binary color as most restrictive
@@ -27,7 +27,7 @@ struct CustomKeyboard: View {
     }
     
     // Check if a key is valid for the currently focused field
-    private func isKeyValid(_ key: String) -> Bool {
+    func isKeyValid(_ key: String) -> Bool {
         guard let field = focusedField else {
             return false // No focused field, all keys are disabled
         }
@@ -51,7 +51,7 @@ struct CustomKeyboard: View {
     }
     
     // Helper to convert special key identifiers back to actual characters
-    private func displayKey(_ key: String) -> String {
+    func displayKey(_ key: String) -> String {
         switch key {
         case "E_DUO", "E_HEX":
             return "E"
@@ -61,7 +61,7 @@ struct CustomKeyboard: View {
     }
     
     // Helper to send the correct key for taps
-    private func handleKeyTap(_ key: String) {
+    func handleKeyTap(_ key: String) {
         let actualKey = displayKey(key)
         onKeyTap(actualKey)
     }
