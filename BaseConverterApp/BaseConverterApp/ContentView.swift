@@ -163,13 +163,6 @@ struct ContentView: View {
                         .tint(Color.gray)
                         .accessibilityLabel("Reset all fields")
                     }
-                    
-                    // Keep the Done button to clear focus
-                    ToolbarItem(placement: .keyboard) {
-                        Button("Done") {
-                            focusedField = nil
-                        }
-                    }
                 }
             }
         }
@@ -185,6 +178,7 @@ struct ContentView: View {
             Text(title)
                 .font(.subheadline)
                 .foregroundColor(field.themeColor)
+                .dynamicTypeSize(.small ... .xxxLarge) // Enable Dynamic Type
             
             // Use our custom KeyboardDisabledTextField
             KeyboardDisabledTextField(
@@ -196,6 +190,9 @@ struct ContentView: View {
             .onChange(of: text.wrappedValue) { _ in
                 viewModel.updateValidation()
             }
+            .accessibilityLabel("\(field.description) input")
+            .accessibilityValue(text.wrappedValue.isEmpty ? "Empty" : text.wrappedValue)
+            .accessibilityHint("Tap to enter \(field.description) value. Valid characters are \(field.displayValidCharacters)")
         }
     }
     
@@ -316,6 +313,13 @@ struct MessageView: View {
             case .success: return "checkmark.circle.fill"
             }
         }
+        
+        var accessibilityAnnouncement: String {
+            switch self {
+            case .error: return "Error: "
+            case .success: return "Success: "
+            }
+        }
     }
     
     var body: some View {
@@ -323,11 +327,15 @@ struct MessageView: View {
         HStack(spacing: 4) {
             Image(systemName: type.iconName)
                 .font(.system(size: 12))
+                .accessibilityHidden(true) // Hide from accessibility since it's decorative
             Text(message)
                 .font(.caption)
+                .dynamicTypeSize(.small ... .xxxLarge) // Enable Dynamic Type
         }
         .padding(.vertical, 2)
         .foregroundColor(type.color)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(type.accessibilityAnnouncement)\(message)")
     }
 }
 

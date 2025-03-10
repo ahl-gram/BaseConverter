@@ -195,6 +195,9 @@ struct CustomKeyboard: View {
                 // Backspace button - wider
                 Button(action: {
                     onKeyTap("⌫")
+                    // Add haptic feedback when backspace is tapped
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
                 }) {
                     HStack {
                         Spacer()
@@ -211,6 +214,9 @@ struct CustomKeyboard: View {
                 }
                 .disabled(focusedField == nil)
                 .frame(maxWidth: .infinity)
+                .accessibilityLabel("Backspace")
+                .accessibilityHint("Tap to delete the last character")
+                .accessibilityAddTraits(.isButton)
             }
         }
         .padding(.horizontal)
@@ -231,6 +237,9 @@ struct KeyButton: View {
     var body: some View {
         Button(action: {
             onTap(key)
+            // Add haptic feedback when button is tapped
+            let generator = UIImpactFeedbackGenerator(style: .light)
+            generator.impactOccurred()
         }) {
             Text(displayText)
                 .font(.system(size: 22, weight: .semibold))
@@ -241,6 +250,9 @@ struct KeyButton: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .disabled(!isEnabled)
+        .accessibilityLabel("\(displayText) key")
+        .accessibilityHint(isEnabled ? "Tap to enter \(displayText)" : "This key is not available in current mode")
+        .accessibilityAddTraits(.isButton)
     }
 }
 
