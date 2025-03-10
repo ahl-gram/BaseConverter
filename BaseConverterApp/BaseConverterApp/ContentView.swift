@@ -84,88 +84,88 @@ struct ContentView: View {
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
-                // Wrap everything in a GeometryReader to get size information
-                GeometryReader { geometry in
-                    VStack(spacing: 0) {
-                        ScrollView {
-                            VStack(spacing: 10) {
-                                // Number Bases Section
-                                VStack(alignment: .leading, spacing: 8) {
-                                    baseInputField(
-                                        title: "Base 2 (Binary)",
-                                        text: $viewModel.base2Input,
-                                        isValid: viewModel.isBase2Valid,
-                                        field: .base2
-                                    )
-                                    
-                                    baseInputField(
-                                        title: "Base 10 (Decimal)",
-                                        text: $viewModel.base10Input,
-                                        isValid: viewModel.isBase10Valid,
-                                        field: .base10
-                                    )
-                                    
-                                    baseInputField(
-                                        title: "Base 12 (Duodecimal)",
-                                        text: $viewModel.base12Input,
-                                        isValid: viewModel.isBase12Valid,
-                                        field: .base12
-                                    )
-                                    
-                                    baseInputField(
-                                        title: "Base 16 (Hexadecimal)",
-                                        text: $viewModel.base16Input,
-                                        isValid: viewModel.isBase16Valid,
-                                        field: .base16
-                                    )
-                                }
-                                
-                                // Messages Section
-                                VStack(spacing: 8) {
-                                    if let errorMessage = viewModel.errorMessage {
-                                        MessageView(
-                                            message: errorMessage,
-                                            type: .error
-                                        )
-                                    }
-                                    
-                                    if let validationMessage = viewModel.validationMessage {
-                                        MessageView(
-                                            message: validationMessage,
-                                            type: .success
-                                        )
-                                    }
-                                }
-                            }
-                            .padding(.horizontal)
-                            // Set a fixed height for the content to ensure it doesn't fight with the keyboard
-                            .frame(minHeight: geometry.size.height * 0.4)
-                        }
-                        .navigationTitle("Base Converter")
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: viewModel.reset) {
-                                    Label("Reset", systemImage: "arrow.clockwise.circle.fill")
-                                }
-                                .accessibilityLabel("Reset all fields")
-                            }
+            // Use GeometryReader for size information
+            GeometryReader { geometry in
+                VStack(spacing: 0) {
+                    // Content section with input fields and messages
+                    VStack(spacing: 8) {
+                        // Number Bases Section
+                        VStack(alignment: .leading, spacing: 6) {
+                            baseInputField(
+                                title: "Base 2 (Binary)",
+                                text: $viewModel.base2Input,
+                                isValid: viewModel.isBase2Valid,
+                                field: .base2
+                            )
                             
-                            // Update the toolbar button to just clear focus, still showing it in case it's helpful
-                            ToolbarItem(placement: .keyboard) {
-                                Button("Done") {
-                                    focusedField = nil
-                                }
-                            }
+                            baseInputField(
+                                title: "Base 10 (Decimal)",
+                                text: $viewModel.base10Input,
+                                isValid: viewModel.isBase10Valid,
+                                field: .base10
+                            )
+                            
+                            baseInputField(
+                                title: "Base 12 (Duodecimal)",
+                                text: $viewModel.base12Input,
+                                isValid: viewModel.isBase12Valid,
+                                field: .base12
+                            )
+                            
+                            baseInputField(
+                                title: "Base 16 (Hexadecimal)",
+                                text: $viewModel.base16Input,
+                                isValid: viewModel.isBase16Valid,
+                                field: .base16
+                            )
                         }
                         
-                        // Add the custom keyboard at the bottom
-                        CustomKeyboard(
-                            onKeyTap: handleKeyTap,
-                            focusedField: focusedField
-                        )
-                        // Let the keyboard take a reasonable portion of the screen
-                        .frame(height: geometry.size.height * 0.45)
+                        // Messages Section - make this smaller and more compact
+                        VStack(spacing: 2) {
+                            if let errorMessage = viewModel.errorMessage {
+                                MessageView(
+                                    message: errorMessage,
+                                    type: .error
+                                )
+                            }
+                            
+                            if let validationMessage = viewModel.validationMessage {
+                                MessageView(
+                                    message: validationMessage,
+                                    type: .success
+                                )
+                            }
+                        }
+                        .frame(minHeight: 24) // Reduced minimum height
+                        .padding(.top, 4)
+                        
+                        Spacer() // Push content to the top
+                    }
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+                    .frame(height: geometry.size.height * 0.55) // Top section takes 55% of screen
+                    
+                    // Add the custom keyboard at the bottom
+                    CustomKeyboard(
+                        onKeyTap: handleKeyTap,
+                        focusedField: focusedField
+                    )
+                    .frame(height: geometry.size.height * 0.45) // Bottom keyboard takes 45% of screen
+                }
+                .navigationTitle("Base Converter")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: viewModel.reset) {
+                            Label("Reset", systemImage: "arrow.clockwise.circle.fill")
+                        }
+                        .accessibilityLabel("Reset all fields")
+                    }
+                    
+                    // Keep the Done button to clear focus
+                    ToolbarItem(placement: .keyboard) {
+                        Button("Done") {
+                            focusedField = nil
+                        }
                     }
                 }
             }
@@ -183,7 +183,7 @@ struct ContentView: View {
                 .font(.subheadline)
                 .foregroundColor(field.themeColor)
             
-            // Replace TextField with our custom KeyboardDisabledTextField
+            // Use our custom KeyboardDisabledTextField
             KeyboardDisabledTextField(
                 text: text,
                 placeholder: text.wrappedValue.isEmpty ? "Valid characters: \(field.displayValidCharacters)" : ""
@@ -313,33 +313,18 @@ struct MessageView: View {
             case .success: return "checkmark.circle.fill"
             }
         }
-        
-        var backgroundColor: Color {
-            switch self {
-            case .error: return Color.red.opacity(0.1)
-            case .success: return Color.green.opacity(0.1)
-            }
-        }
     }
     
     var body: some View {
-        HStack {
+        // Simple horizontal layout with small icon and text
+        HStack(spacing: 4) {
             Image(systemName: type.iconName)
+                .font(.system(size: 12))
             Text(message)
-                .foregroundColor(type.color)
+                .font(.caption)
         }
-        .padding()
-        .frame(maxWidth: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(type.backgroundColor)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(type.color.opacity(0.2), lineWidth: 1)
-        )
+        .padding(.vertical, 2)
         .foregroundColor(type.color)
-        .padding(.horizontal)
     }
 }
 
