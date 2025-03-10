@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct BaseInputStyle: ViewModifier {
     let isValid: Bool
@@ -150,7 +151,7 @@ struct ContentView: View {
                                 .accessibilityLabel("Reset all fields")
                             }
                             
-                            // Add toolbar item to dismiss keyboard
+                            // Update the toolbar button to just clear focus, still showing it in case it's helpful
                             ToolbarItem(placement: .keyboard) {
                                 Button("Done") {
                                     focusedField = nil
@@ -182,15 +183,16 @@ struct ContentView: View {
                 .font(.subheadline)
                 .foregroundColor(field.themeColor)
             
-            TextField(text.wrappedValue.isEmpty ? "Valid characters: \(field.displayValidCharacters)" : "", text: text)
-                .textInputAutocapitalization(.never)
-                .disableAutocorrection(true)
-                .textFieldStyle(.roundedBorder)
-                .modifier(BaseInputStyle(isValid: isValid, themeColor: field.themeColor))
-                .focused($focusedField, equals: field)
-                .onChange(of: text.wrappedValue) { _ in
-                    viewModel.updateValidation()
-                }
+            // Replace TextField with our custom KeyboardDisabledTextField
+            KeyboardDisabledTextField(
+                text: text,
+                placeholder: text.wrappedValue.isEmpty ? "Valid characters: \(field.displayValidCharacters)" : ""
+            )
+            .modifier(BaseInputStyle(isValid: isValid, themeColor: field.themeColor))
+            .focused($focusedField, equals: field)
+            .onChange(of: text.wrappedValue) { _ in
+                viewModel.updateValidation()
+            }
         }
     }
     
