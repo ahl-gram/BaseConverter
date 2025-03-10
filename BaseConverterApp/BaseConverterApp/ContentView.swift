@@ -27,47 +27,6 @@ struct BaseInputStyle: ViewModifier {
     }
 }
 
-struct OperationTheme {
-    static let add = Color.green
-    static let subtract = Color.red
-    static let multiply = Color.blue
-    static let divide = Color.orange
-    
-    static func color(for operation: BaseConverterViewModel.Operation) -> Color {
-        switch operation {
-        case .add: return add
-        case .subtract: return subtract
-        case .multiply: return multiply
-        case .divide: return divide
-        }
-    }
-}
-
-struct OperationButtonStyle: ButtonStyle {
-    let systemImage: String
-    let text: String
-    let isEnabled: Bool
-    let color: Color
-    
-    func makeBody(configuration: Configuration) -> some View {
-        HStack {
-            Image(systemName: systemImage)
-                .font(.title2)
-            Text(text)
-                .font(.body)
-        }
-        .frame(minWidth: 100)
-        .padding(.vertical, 8)
-        .padding(.horizontal, 16)
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(isEnabled ? color : Color.gray)
-                .opacity(configuration.isPressed ? 0.7 : 1.0)
-        )
-        .foregroundColor(.white)
-    }
-}
-
 struct BaseTheme {
     static let binary = Color.blue       // Binary feels technical, blue is appropriate
     static let decimal = Color.green     // Decimal is standard/natural, green works well
@@ -84,10 +43,6 @@ struct ContentView: View {
                 VStack(spacing: 20) {
                     // Number Bases Section
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Number Bases")
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
                         baseInputField(
                             title: "Base 2 (Binary)",
                             text: $viewModel.base2Input,
@@ -138,64 +93,6 @@ struct ContentView: View {
                             )
                         }
                     }
-                    
-                    // Operations Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Operations")
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
-                        VStack(spacing: 12) {
-                            HStack(spacing: 20) {
-                                operationButton(
-                                    operation: .add,
-                                    systemImage: "plus.circle.fill",
-                                    text: "Add"
-                                )
-                                
-                                operationButton(
-                                    operation: .subtract,
-                                    systemImage: "minus.circle.fill",
-                                    text: "Subtract"
-                                )
-                            }
-                            
-                            HStack(spacing: 20) {
-                                operationButton(
-                                    operation: .multiply,
-                                    systemImage: "multiply.circle.fill",
-                                    text: "Multiply"
-                                )
-                                
-                                operationButton(
-                                    operation: .divide,
-                                    systemImage: "divide.circle.fill",
-                                    text: "Divide"
-                                )
-                            }
-                        }
-                        .padding()
-                    }
-                    
-                    // Result Section
-                    if let result = viewModel.operationResult {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Result")
-                                .font(.headline)
-                            
-                            Text(result)
-                                .font(.system(.title2, design: .monospaced))
-                                .foregroundColor(.blue)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(Color.blue.opacity(0.1))
-                                )
-                                .accessibilityLabel("Operation result")
-                        }
-                        .padding()
-                    }
                 }
                 .padding()
             }
@@ -207,9 +104,6 @@ struct ContentView: View {
                     }
                     .accessibilityLabel("Reset all fields")
                 }
-            }
-            .sheet(isPresented: $viewModel.showingOperationSheet) {
-                OperationView(viewModel: viewModel)
             }
         }
     }
@@ -240,26 +134,6 @@ struct ContentView: View {
                 .foregroundColor(themeColor.opacity(0.8))
         }
         .padding(.horizontal)
-    }
-    
-    private func operationButton(
-        operation: BaseConverterViewModel.Operation,
-        systemImage: String,
-        text: String
-    ) -> some View {
-        Button(action: {
-            viewModel.startOperation(operation, from: 10)
-        }) {
-            EmptyView()
-        }
-        .buttonStyle(OperationButtonStyle(
-            systemImage: systemImage,
-            text: text,
-            isEnabled: viewModel.errorMessage == nil,
-            color: OperationTheme.color(for: operation)
-        ))
-        .disabled(viewModel.errorMessage != nil)
-        .accessibilityLabel("\(text) numbers")
     }
 }
 
@@ -311,64 +185,6 @@ struct MessageView: View {
         )
         .foregroundColor(type.color)
         .padding(.horizontal)
-    }
-}
-
-struct OperationView: View {
-    @ObservedObject var viewModel: BaseConverterViewModel
-    @Environment(\.dismiss) var dismiss
-    
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 20) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Enter Second Number")
-                        .font(.headline)
-                    
-                    TextField("Second operand", text: $viewModel.secondOperand)
-                        .textFieldStyle(.roundedBorder)
-                        .textInputAutocapitalization(.never)
-                        .disableAutocorrection(true)
-                        .modifier(BaseInputStyle(isValid: true, themeColor: .accentColor))
-                        .accessibilityLabel("Second operand input field")
-                }
-                .padding()
-                
-                if let errorMessage = viewModel.errorMessage {
-                    MessageView(
-                        message: errorMessage,
-                        type: .error
-                    )
-                }
-                
-                Button(action: {
-                    viewModel.performOperation()
-                    dismiss()
-                }) {
-                    Text("Calculate")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(viewModel.secondOperand.isEmpty ? Color.gray : Color.accentColor)
-                        )
-                }
-                .disabled(viewModel.secondOperand.isEmpty)
-                .padding()
-                
-                Spacer()
-            }
-            .navigationTitle("Arithmetic Operation")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-            }
-        }
     }
 }
 
