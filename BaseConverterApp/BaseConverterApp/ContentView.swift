@@ -155,7 +155,13 @@ struct ContentView: View {
                 .navigationTitle("Base Converter")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: viewModel.reset) {
+                        Button(action: {
+                            // Add haptic feedback when reset button is tapped
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
+                            
+                            viewModel.reset()
+                        }) {
                             Label("Reset", systemImage: "arrow.clockwise.circle.fill")
                                 .foregroundColor(Color.gray)
                         }
@@ -186,6 +192,7 @@ struct ContentView: View {
                 placeholder: text.wrappedValue.isEmpty ? "Valid characters: \(field.displayValidCharacters)" : ""
             )
             .modifier(BaseInputStyle(isValid: isValid, themeColor: field.themeColor))
+            .dynamicTypeSize(.small ... .xxxLarge) // Enable Dynamic Type for input field
             .focused($focusedField, equals: field)
             .onChange(of: text.wrappedValue) { _ in
                 viewModel.updateValidation()

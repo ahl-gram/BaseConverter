@@ -17,6 +17,10 @@ struct KeyboardDisabledTextField: UIViewRepresentable {
         // Set tint color to show the caret
         textField.tintColor = .systemBlue
         
+        // Enable dynamic type for the text field
+        textField.adjustsFontForContentSizeCategory = true
+        textField.font = UIFont.preferredFont(forTextStyle: .body)
+        
         // Add target to detect when editing begins
         textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldDidBeginEditing), for: .editingDidBegin)
         
@@ -25,24 +29,27 @@ struct KeyboardDisabledTextField: UIViewRepresentable {
     
     func updateUIView(_ uiView: UITextField, context: Context) {
         if uiView.text != text {
-            // Get cursor position before updating text
-            let selectedRange = uiView.selectedTextRange
+            // Store the current text length for comparison
+            let oldLength = uiView.text?.count ?? 0
+            let newLength = text.count
             
-            // Update text
+            // Update text and placeholder
             uiView.text = text
             uiView.placeholder = placeholder
             
-            // Try to restore cursor position or put it at the end
-            if let selectedRange = selectedRange, uiView.isFirstResponder {
-                // If we have a previous position and the field is focused
-                if text.count >= (uiView.text?.count ?? 0) {
-                    // If text is longer or same length, try to maintain position
-                    uiView.selectedTextRange = selectedRange
-                } else {
-                    // If text is shorter, move to end
+            // Properly position cursor based on text change
+            if uiView.isFirstResponder {
+                if newLength > oldLength {
+                    // Text was added - move cursor to the end
+                    let newPosition = uiView.endOfDocument
+                    uiView.selectedTextRange = uiView.textRange(from: newPosition, to: newPosition)
+                } else if newLength < oldLength {
+                    // Text was deleted - try to maintain a reasonable cursor position
+                    // If we're at the end already, stay at the end
                     let newPosition = uiView.endOfDocument
                     uiView.selectedTextRange = uiView.textRange(from: newPosition, to: newPosition)
                 }
+                // If equal length but different text, the cursor position is preserved automatically
             }
         }
     }
