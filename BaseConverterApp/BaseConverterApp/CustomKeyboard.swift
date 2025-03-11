@@ -242,7 +242,7 @@ struct CustomKeyboard: View {
                 // Negative sign button
                 KeyButton(
                     key: "-",
-                    displayText: "-",
+                    displayText: "+ / —",
                     color: Color.gray,
                     onTap: handleKeyTap,
                     isEnabled: focusedField != nil
@@ -264,7 +264,7 @@ struct CustomKeyboard: View {
                         Spacer()
                     }
                     .foregroundColor(.white)
-                    .frame(height: 50)
+                    .frame(height: 45) // Match height with other buttons
                     .background(focusedField != nil ? Color.gray : Color.gray.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
