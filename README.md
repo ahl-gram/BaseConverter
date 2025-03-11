@@ -1,6 +1,6 @@
 # Base Converter App
 
-A simple and intuitive iOS application for converting numbers between different bases (Base 2, Base 10, Base 12, and Base 16) with additional arithmetic operation capabilities.
+A simple and intuitive iOS application for converting numbers between different bases (Base 2, Base 10, Base 12, and Base 16) with additional arithmetic operation capabilities. Built using SwiftUI with the help of Cursor and Claude Sonnet.
 
 ## Features
 
@@ -20,7 +20,7 @@ A simple and intuitive iOS application for converting numbers between different 
 
 1. Clone the repository:
    ```bash
-   git clone [repository-url]
+   git clone https://github.com/ahl-gram/BaseConverter
    ```
 
 2. Open `BaseConverterApp.xcodeproj` in Xcode.
@@ -51,6 +51,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Contact
 
-Your Name - [your-email@example.com]
+Your Name - ahl@route12b.net
 
-Project Link: [repository-url] 
+Project Link: https://github.com/ahl-gram/BaseConverter
