@@ -92,28 +92,28 @@ struct ContentView: View {
                         // Number Bases Section
                         VStack(alignment: .leading, spacing: 4) {
                             baseInputField(
-                                title: "Base 2 (Binary)",
+                                title: "Base 2",
                                 text: $viewModel.base2Input,
                                 isValid: viewModel.isBase2Valid,
                                 field: .base2
                             )
                             
                             baseInputField(
-                                title: "Base 10 (Decimal)",
+                                title: "Base 10",
                                 text: $viewModel.base10Input,
                                 isValid: viewModel.isBase10Valid,
                                 field: .base10
                             )
                             
                             baseInputField(
-                                title: "Base 12 (Duodecimal)",
+                                title: "Base 12",
                                 text: $viewModel.base12Input,
                                 isValid: viewModel.isBase12Valid,
                                 field: .base12
                             )
                             
                             baseInputField(
-                                title: "Base 16 (Hexadecimal)",
+                                title: "Base 16",
                                 text: $viewModel.base16Input,
                                 isValid: viewModel.isBase16Valid,
                                 field: .base16
@@ -172,7 +172,7 @@ struct ContentView: View {
             // Use our custom KeyboardDisabledTextField
             KeyboardDisabledTextField(
                 text: text,
-                placeholder: text.wrappedValue.isEmpty ? "Valid characters: \(field.displayValidCharacters)" : ""
+                placeholder: text.wrappedValue.isEmpty ? "\(field.description)" : ""
             )
             .modifier(BaseInputStyle(isValid: isValid, themeColor: field.themeColor))
             .dynamicTypeSize(.small ... .xxxLarge) // Enable Dynamic Type for input field
