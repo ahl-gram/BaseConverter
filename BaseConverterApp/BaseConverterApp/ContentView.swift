@@ -38,6 +38,9 @@ struct BaseTheme {
 struct ContentView: View {
     @StateObject var viewModel: BaseConverterViewModel
     
+    // State to control the About sheet
+    @State private var showingAbout = false
+    
     // Default initializer for normal app usage
     init() {
         self._viewModel = StateObject(wrappedValue: BaseConverterViewModel())
@@ -147,6 +150,18 @@ struct ContentView: View {
                 }
                 .navigationTitle("Base Converter")
                 .toolbar {
+                    // Add info button to leading edge of toolbar
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: {
+                            showingAbout = true
+                        }) {
+                            Image(systemName: "info.circle")
+                                .foregroundColor(.gray)
+                        }
+                        .accessibilityLabel("About")
+                    }
+                    
+                    // Keep existing reset button in trailing position
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: {
                             // Add haptic feedback when reset button is tapped
@@ -162,6 +177,9 @@ struct ContentView: View {
                         .tint(Color.gray)
                         .accessibilityLabel("Reset all fields")
                     }
+                }
+                .sheet(isPresented: $showingAbout) {
+                    AboutView()
                 }
             }
         }
