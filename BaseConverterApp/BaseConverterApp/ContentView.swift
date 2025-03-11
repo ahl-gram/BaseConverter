@@ -36,10 +36,20 @@ struct BaseTheme {
 }
 
 struct ContentView: View {
-    @StateObject private var viewModel = BaseConverterViewModel()
+    @StateObject var viewModel: BaseConverterViewModel
+    
+    // Default initializer for normal app usage
+    init() {
+        self._viewModel = StateObject(wrappedValue: BaseConverterViewModel())
+    }
+    
+    // Testing initializer that accepts a pre-created viewModel
+    init(viewModel: BaseConverterViewModel) {
+        self._viewModel = StateObject(wrappedValue: viewModel)
+    }
     
     // Add focus state to track which input is focused
-    @FocusState private var focusedField: BaseField?
+    @FocusState var focusedField: BaseField?
     
     // Enum to track which field is focused
     enum BaseField: Int, CaseIterable {
@@ -286,7 +296,7 @@ struct ContentView: View {
     }
     
     // Increment the value in the specified field
-    private func incrementValue(in field: BaseField) {
+    func incrementValue(in field: BaseField) {
         // Use the base10Input as the working value if it's valid
         if let currentDecimal = Int(viewModel.base10Input) {
             // Increment by 1
@@ -298,7 +308,7 @@ struct ContentView: View {
     }
     
     // Decrement the value in the specified field
-    private func decrementValue(in field: BaseField) {
+    func decrementValue(in field: BaseField) {
         // Use the base10Input as the working value if it's valid
         if let currentDecimal = Int(viewModel.base10Input) {
             // Decrement by 1
