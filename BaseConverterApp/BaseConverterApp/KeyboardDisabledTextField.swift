@@ -21,6 +21,17 @@ struct KeyboardDisabledTextField: UIViewRepresentable {
         textField.adjustsFontForContentSizeCategory = true
         textField.font = UIFont.preferredFont(forTextStyle: .body)
         
+        // Configure text field for better handling of long text
+        textField.adjustsFontSizeToFitWidth = false
+        textField.minimumFontSize = 12
+        textField.textAlignment = .left
+        
+        // Configure scrolling behavior for long content
+        textField.clearsOnBeginEditing = false
+        textField.clearButtonMode = .never
+        textField.rightViewMode = .never // Ensure no decorations on the right side
+        textField.leftViewMode = .never // Ensure no decorations on the left side
+        
         // Add target to detect when editing begins
         textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldDidBeginEditing), for: .editingDidBegin)
         
@@ -40,16 +51,17 @@ struct KeyboardDisabledTextField: UIViewRepresentable {
             // Properly position cursor based on text change
             if uiView.isFirstResponder {
                 if newLength > oldLength {
-                    // Text was added - move cursor to the end
+                    // Text was added - move cursor to the end and ensure it's visible
                     let newPosition = uiView.endOfDocument
                     uiView.selectedTextRange = uiView.textRange(from: newPosition, to: newPosition)
+                    
+                    // For UITextField, simply setting the cursor position is enough
+                    // as it will automatically scroll to show the cursor
                 } else if newLength < oldLength {
-                    // Text was deleted - try to maintain a reasonable cursor position
-                    // If we're at the end already, stay at the end
+                    // Text was deleted - move cursor to the end
                     let newPosition = uiView.endOfDocument
                     uiView.selectedTextRange = uiView.textRange(from: newPosition, to: newPosition)
                 }
-                // If equal length but different text, the cursor position is preserved automatically
             }
         }
     }
