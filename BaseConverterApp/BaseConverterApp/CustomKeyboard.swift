@@ -200,36 +200,73 @@ struct CustomKeyboard: View {
                 )
             }
             
-            // Fifth row: Negative sign and Backspace
+            // Fifth row: Sign toggle, Decrement, Increment, and Backspace
             HStack(spacing: 8) {
-                // Negative sign button
+                // Negative sign button (±)
                 KeyButton(
                     key: "-",
-                    displayText: "+ / —",
+                    displayText: "±",
                     color: Color.gray,
                     onTap: handleKeyTap,
                     isEnabled: focusedField != nil
                 )
                 
-                // Backspace button - wider
+                // Decrement button (-)
+                Button(action: {
+                    // Add haptic feedback when decrement button is tapped
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
+                    
+                    onKeyTap("DECREMENT")
+                }) {
+                    Image(systemName: "minus")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(minWidth: 0, maxWidth: .infinity)
+                        .frame(height: 45)
+                        .background(focusedField != nil ? Color.gray : Color.gray.opacity(0.3))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+                .disabled(focusedField == nil)
+                .accessibilityLabel("Decrease value")
+                .accessibilityHint("Tap to decrease the current value by 1")
+                .accessibilityAddTraits(.isButton)
+                
+                // Increment button (+)
+                Button(action: {
+                    // Add haptic feedback when increment button is tapped
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
+                    
+                    onKeyTap("INCREMENT")
+                }) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(minWidth: 0, maxWidth: .infinity)
+                        .frame(height: 45)
+                        .background(focusedField != nil ? Color.gray : Color.gray.opacity(0.3))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+                .disabled(focusedField == nil)
+                .accessibilityLabel("Increase value")
+                .accessibilityHint("Tap to increase the current value by 1")
+                .accessibilityAddTraits(.isButton)
+                
+                // Backspace button
                 Button(action: {
                     onKeyTap("⌫")
                     // Add haptic feedback when backspace is tapped
                     let generator = UIImpactFeedbackGenerator(style: .light)
                     generator.impactOccurred()
                 }) {
-                    HStack {
-                        Spacer()
-                        Image(systemName: "delete.left")
-                            .font(.system(size: 18, weight: .medium))
-                        Text("Backspace")
-                            .font(.system(size: 16))
-                        Spacer()
-                    }
-                    .foregroundColor(.white)
-                    .frame(height: 45) // Match height with other buttons
-                    .background(focusedField != nil ? Color.gray : Color.gray.opacity(0.3))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    Image(systemName: "delete.left")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(minWidth: 0, maxWidth: .infinity)
+                        .frame(height: 45)
+                        .background(focusedField != nil ? Color.gray : Color.gray.opacity(0.3))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .disabled(focusedField == nil)
                 .frame(maxWidth: .infinity)
