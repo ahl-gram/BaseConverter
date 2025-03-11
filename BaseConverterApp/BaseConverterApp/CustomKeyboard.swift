@@ -1,10 +1,61 @@
 import SwiftUI
 
+// MessageView now lives here for use in CustomKeyboard
+struct MessageView: View {
+    let message: String
+    let type: MessageType
+    
+    enum MessageType {
+        case error
+        case success
+        
+        var color: Color {
+            switch self {
+            case .error: return .red
+            case .success: return .green
+            }
+        }
+        
+        var iconName: String {
+            switch self {
+            case .error: return "exclamationmark.triangle.fill"
+            case .success: return "checkmark.circle.fill"
+            }
+        }
+        
+        var accessibilityAnnouncement: String {
+            switch self {
+            case .error: return "Error: "
+            case .success: return "Success: "
+            }
+        }
+    }
+    
+    var body: some View {
+        // Simple horizontal layout with small icon and text
+        HStack(spacing: 4) {
+            Image(systemName: type.iconName)
+                .font(.system(size: 12))
+                .accessibilityHidden(true) // Hide from accessibility since it's decorative
+            Text(message)
+                .font(.caption)
+                .dynamicTypeSize(.small ... .xxxLarge) // Enable Dynamic Type
+        }
+        .padding(.vertical, 2)
+        .foregroundColor(type.color)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(type.accessibilityAnnouncement)\(message)")
+    }
+}
+
 struct CustomKeyboard: View {
     // Callback function to handle keyboard input
     var onKeyTap: (String) -> Void
     // Currently focused field (if any)
     var focusedField: ContentView.BaseField?
+    // Add message parameters
+    var errorMessage: String?
+    var validationMessage: String?
     
     // Function to determine the color of each key based on what bases it's used in
     func colorForKey(_ key: String) -> Color {
@@ -67,27 +118,32 @@ struct CustomKeyboard: View {
     }
     
     var body: some View {
-        VStack(spacing: 12) {
-            // Show current mode at the top of the keyboard
-            if let field = focusedField {
-                HStack {
+        VStack(spacing: 8) {
+            // Show current mode and messages at the top of the keyboard
+            HStack(alignment: .center) {
+                // Current mode info on left
+                if let field = focusedField {
                     Text("Current mode: \(field.description)")
                         .font(.caption)
                         .foregroundColor(field.themeColor)
-                        .padding(.top, 4)
-                    Spacer()
-                }
-                .padding(.horizontal)
-            } else {
-                HStack {
+                } else {
                     Text("Tap a field to begin entering values")
                         .font(.caption)
                         .foregroundColor(.gray)
-                        .padding(.top, 4)
-                    Spacer()
                 }
-                .padding(.horizontal)
+                
+                Spacer()
+                
+                // Messages on right
+                if let errorMessage = errorMessage {
+                    MessageView(message: errorMessage, type: .error)
+                } else if let validationMessage = validationMessage {
+                    MessageView(message: validationMessage, type: .success)
+                }
             }
+            .padding(.horizontal)
+            .padding(.top, 2)
+            .frame(minHeight: 20)
             
             // Divider to separate keyboard from content
             Divider()
@@ -245,7 +301,7 @@ struct KeyButton: View {
                 .font(.system(size: 22, weight: .semibold))
                 .foregroundColor(.white)
                 .frame(minWidth: 0, maxWidth: .infinity)
-                .frame(height: 50)
+                .frame(height: 45)  // Reduced from 50 to 45
                 .background(isEnabled ? color : color.opacity(0.3))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }

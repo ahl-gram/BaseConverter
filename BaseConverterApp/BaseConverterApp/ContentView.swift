@@ -88,9 +88,9 @@ struct ContentView: View {
             GeometryReader { geometry in
                 VStack(spacing: 0) {
                     // Content section with input fields and messages
-                    VStack(spacing: 8) {
+                    VStack(spacing: 4) {
                         // Number Bases Section
-                        VStack(alignment: .leading, spacing: 6) {
+                        VStack(alignment: .leading, spacing: 4) {
                             baseInputField(
                                 title: "Base 2 (Binary)",
                                 text: $viewModel.base2Input,
@@ -120,37 +120,20 @@ struct ContentView: View {
                             )
                         }
                         
-                        // Messages Section - make this smaller and more compact
-                        VStack(spacing: 2) {
-                            if let errorMessage = viewModel.errorMessage {
-                                MessageView(
-                                    message: errorMessage,
-                                    type: .error
-                                )
-                            }
-                            
-                            if let validationMessage = viewModel.validationMessage {
-                                MessageView(
-                                    message: validationMessage,
-                                    type: .success
-                                )
-                            }
-                        }
-                        .frame(minHeight: 24) // Reduced minimum height
-                        .padding(.top, 4)
-                        
                         Spacer() // Push content to the top
                     }
                     .padding(.horizontal)
                     .padding(.top, 8)
-                    .frame(height: geometry.size.height * 0.55) // Top section takes 55% of screen
+                    .frame(height: geometry.size.height * 0.50)
                     
                     // Add the custom keyboard at the bottom
                     CustomKeyboard(
                         onKeyTap: handleKeyTap,
-                        focusedField: focusedField
+                        focusedField: focusedField,
+                        errorMessage: viewModel.errorMessage,
+                        validationMessage: viewModel.validationMessage
                     )
-                    .frame(height: geometry.size.height * 0.45) // Bottom keyboard takes 45% of screen
+                    .frame(height: geometry.size.height * 0.50)
                 }
                 .navigationTitle("Base Converter")
                 .toolbar {
@@ -296,53 +279,6 @@ struct ContentView: View {
                 }
             }
         }
-    }
-}
-
-struct MessageView: View {
-    let message: String
-    let type: MessageType
-    
-    enum MessageType {
-        case error
-        case success
-        
-        var color: Color {
-            switch self {
-            case .error: return .red
-            case .success: return .green
-            }
-        }
-        
-        var iconName: String {
-            switch self {
-            case .error: return "exclamationmark.triangle.fill"
-            case .success: return "checkmark.circle.fill"
-            }
-        }
-        
-        var accessibilityAnnouncement: String {
-            switch self {
-            case .error: return "Error: "
-            case .success: return "Success: "
-            }
-        }
-    }
-    
-    var body: some View {
-        // Simple horizontal layout with small icon and text
-        HStack(spacing: 4) {
-            Image(systemName: type.iconName)
-                .font(.system(size: 12))
-                .accessibilityHidden(true) // Hide from accessibility since it's decorative
-            Text(message)
-                .font(.caption)
-                .dynamicTypeSize(.small ... .xxxLarge) // Enable Dynamic Type
-        }
-        .padding(.vertical, 2)
-        .foregroundColor(type.color)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(type.accessibilityAnnouncement)\(message)")
     }
 }
 
