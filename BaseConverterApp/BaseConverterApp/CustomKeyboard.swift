@@ -1,53 +1,5 @@
 import SwiftUI
 
-// MessageView now lives here for use in CustomKeyboard
-struct MessageView: View {
-    let message: String
-    let type: MessageType
-    
-    enum MessageType {
-        case error
-        case success
-        
-        var color: Color {
-            switch self {
-            case .error: return .red
-            case .success: return .green
-            }
-        }
-        
-        var iconName: String {
-            switch self {
-            case .error: return "exclamationmark.triangle.fill"
-            case .success: return "checkmark.circle.fill"
-            }
-        }
-        
-        var accessibilityAnnouncement: String {
-            switch self {
-            case .error: return "Error: "
-            case .success: return "Success: "
-            }
-        }
-    }
-    
-    var body: some View {
-        // Simple horizontal layout with small icon and text
-        HStack(spacing: 4) {
-            Image(systemName: type.iconName)
-                .font(.system(size: 12))
-                .accessibilityHidden(true) // Hide from accessibility since it's decorative
-            Text(message)
-                .font(.caption)
-                .dynamicTypeSize(.small ... .xxxLarge) // Enable Dynamic Type
-        }
-        .padding(.vertical, 2)
-        .foregroundColor(type.color)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(type.accessibilityAnnouncement)\(message)")
-    }
-}
-
 struct CustomKeyboard: View {
     // Callback function to handle keyboard input
     var onKeyTap: (String) -> Void
@@ -121,24 +73,35 @@ struct CustomKeyboard: View {
         VStack(spacing: 8) {
             // Show current mode and messages at the top of the keyboard
             HStack(alignment: .center) {
-                // Current mode info on left
-                if let field = focusedField {
-                    Text("Current mode: \(field.description)")
-                        .font(.caption)
-                        .foregroundColor(field.themeColor)
-                } else {
-                    Text("Tap a field to begin entering values")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                // Current mode info on left - explicitly left-aligned
+                HStack {
+                    if let field = focusedField {
+                        Text("Current mode: \(field.description)")
+                            .font(.caption)
+                            .foregroundColor(field.themeColor)
+                    } else {
+                        Text("Tap a field to begin entering values")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                    Spacer(minLength: 0) // Forces left alignment
                 }
                 
                 Spacer()
                 
-                // Messages on right
+                // Messages on right - show only icons, vertically centered
                 if let errorMessage = errorMessage {
-                    MessageView(message: errorMessage, type: .error)
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.red)
+                        .font(.system(size: 16))
+                        .accessibilityLabel("Error: \(errorMessage)")
+                        .frame(height: 20, alignment: .center) // Ensure vertical centering
                 } else if let validationMessage = validationMessage {
-                    MessageView(message: validationMessage, type: .success)
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                        .font(.system(size: 16))
+                        .accessibilityLabel("Success: \(validationMessage)")
+                        .frame(height: 20, alignment: .center) // Ensure vertical centering
                 }
             }
             .padding(.horizontal)
