@@ -170,7 +170,7 @@ struct ContentView: View {
                             
                             viewModel.reset()
                         }) {
-                            Label("Reset", systemImage: "arrow.clockwise.circle.fill")
+                            Label("Reset", systemImage: "arrow.counterclockwise.circle.fill")
                                 .foregroundColor(Color.gray)
                         }
                         .foregroundColor(Color.gray)
