@@ -116,7 +116,7 @@ class BaseConverterViewModel: ObservableObject {
         // Remove leading zeros while preserving negative sign
         let cleanedInput = cleanInput(input)
         
-        // If the input was cleaned, update it
+        // If the input was cleaned, update it and then continue with conversion
         if cleanedInput != input {
             switch base {
             case 2: base2Input = cleanedInput
@@ -124,6 +124,12 @@ class BaseConverterViewModel: ObservableObject {
             case 12: base12Input = cleanedInput
             case 16: base16Input = cleanedInput
             default: break
+            }
+            
+            // Continue with the cleaned input
+            // But exit the current function to avoid double processing
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.handleInputChange(cleanedInput, from: base)
             }
             return
         }
@@ -229,6 +235,12 @@ class BaseConverterViewModel: ObservableObject {
                 case 12: self.base12Input = cleaned
                 case 16: self.base16Input = cleaned
                 default: break
+                }
+                
+                // Trigger a conversion after cleaning to update other fields
+                // Small delay to ensure the cleaned value is set first
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.handleInputChange(cleaned, from: base)
                 }
             }
         }
