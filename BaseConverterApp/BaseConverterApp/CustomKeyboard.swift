@@ -77,12 +77,14 @@ struct CustomKeyboard: View {
                 HStack {
                     if let field = focusedField {
                         Text("Current mode: \(field.description)")
-                            .font(.caption)
+                            .font(.subheadline)
                             .foregroundColor(field.themeColor)
+                            .dynamicTypeSize(.small ... .xxxLarge)
                     } else {
                         Text("Tap a field to begin entering values")
-                            .font(.caption)
+                            .font(.subheadline)
                             .foregroundColor(.gray)
+                            .dynamicTypeSize(.small ... .xxxLarge)
                     }
                     Spacer(minLength: 0) // Forces left alignment
                 }
