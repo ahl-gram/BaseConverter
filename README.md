@@ -1,4 +1,4 @@
-# Base Converter App
+# Base Converter
 
 A simple and intuitive iOS application for converting numbers between different bases (Base 2, Base 10, Base 12, and Base 16) with additional arithmetic operation capabilities. Built using SwiftUI with the help of Cursor and Claude Sonnet.
 
@@ -51,6 +51,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Contact
 
-Your Name - ahl@route12b.net
+ahl@route12b.net
 
-Project Link: https://github.com/ahl-gram/BaseConverter
+https://github.com/ahl-gram/BaseConverter
