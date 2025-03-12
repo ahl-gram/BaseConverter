@@ -1,5 +1,9 @@
 import SwiftUI
 
+func getButtonHeight() -> CGFloat {
+    return UIScreen.main.bounds.height < 700 ? 30 : 45
+}
+    
 struct CustomKeyboard: View {
     // Callback function to handle keyboard input
     var onKeyTap: (String) -> Void
@@ -8,7 +12,7 @@ struct CustomKeyboard: View {
     // Add message parameters
     var errorMessage: String?
     var validationMessage: String?
-    
+
     // Function to determine the color of each key based on what bases it's used in
     func colorForKey(_ key: String) -> Color {
         switch key {
@@ -203,15 +207,26 @@ struct CustomKeyboard: View {
             }
             
             // Fifth row: Sign toggle, Decrement, Increment, and Backspace
+            let buttonHeight: CGFloat = getButtonHeight()
             HStack(spacing: 8) {
                 // Negative sign button (±)
-                KeyButton(
-                    key: "-",
-                    displayText: "±",
-                    color: Color.gray,
-                    onTap: handleKeyTap,
-                    isEnabled: focusedField != nil
-                )
+                Button(action: {
+                    onKeyTap("-")
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
+                }) {
+                    Image(systemName: "plusminus")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(minWidth: 0, maxWidth: .infinity)
+                        .frame(height: buttonHeight)
+                        .background(focusedField != nil ? Color.gray : Color.gray.opacity(0.3))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+                .disabled(focusedField == nil)
+                .accessibilityLabel("Toggle sign")
+                .accessibilityHint("Tap to toggle the sign of the current value")
+                .accessibilityAddTraits(.isButton)
                 
                 // Decrement button (-)
                 Button(action: {
@@ -225,7 +240,7 @@ struct CustomKeyboard: View {
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(.white)
                         .frame(minWidth: 0, maxWidth: .infinity)
-                        .frame(height: 45)
+                        .frame(height: buttonHeight)
                         .background(focusedField != nil ? Color.gray : Color.gray.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
@@ -246,7 +261,7 @@ struct CustomKeyboard: View {
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(.white)
                         .frame(minWidth: 0, maxWidth: .infinity)
-                        .frame(height: 45)
+                        .frame(height: buttonHeight)
                         .background(focusedField != nil ? Color.gray : Color.gray.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
@@ -266,7 +281,7 @@ struct CustomKeyboard: View {
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(.white)
                         .frame(minWidth: 0, maxWidth: .infinity)
-                        .frame(height: 45)
+                        .frame(height: buttonHeight)
                         .background(focusedField != nil ? Color.gray : Color.gray.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
@@ -299,11 +314,12 @@ struct KeyButton: View {
             let generator = UIImpactFeedbackGenerator(style: .light)
             generator.impactOccurred()
         }) {
+            let buttonHeight: CGFloat = getButtonHeight()
             Text(displayText)
                 .font(.system(size: 22, weight: .semibold))
                 .foregroundColor(.white)
                 .frame(minWidth: 0, maxWidth: .infinity)
-                .frame(height: 45)  // Reduced from 50 to 45
+                .frame(height: buttonHeight)  
                 .background(isEnabled ? color : color.opacity(0.3))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
