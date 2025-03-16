@@ -10,6 +10,12 @@ struct AboutView: View {
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
         return "Base Converter v\(version) (\(build))"
     }
+
+    // External URLs
+    let wikipediaURL = "https://simple.wikipedia.org/wiki/Base_(mathematics)"
+    let wolframURL = "https://mathworld.wolfram.com/Base.html"
+    let appStoreURL =  "http://apps.apple.com/us/app/the-base-converter/id6743086704"
+    let githubIssuesURL = "https://github.com/ahl-gram/BaseConverter/issues"
     
     // Define colors for each base (matching ContentView)
     private let baseColors = [
@@ -75,6 +81,80 @@ struct AboutView: View {
                             .foregroundColor(baseColors["Hexadecimal"])
                         Text("Uses 0-9 and A-F. Common in computing for representing binary data compactly.")
                             .padding(.leading, 16)
+                    }
+                }
+
+                Section(header: Text("Links")) {
+                    if let url = URL(string: wikipediaURL) {
+                        VStack {
+                            HStack {
+                                Text("Wikipedia: Base (Mathematics)")
+                                    .font(.body)
+                                Spacer()
+                                Button {
+                                    UIApplication.shared.open(url)
+                                } label: {
+                                    Image(systemName: "arrow.up.right.square")
+                                        .imageScale(.large)
+                                        .foregroundColor(.blue)
+                                }
+                            }
+                            .padding(.vertical, 2)
+                        }
+                    }
+                    
+                    if let url = URL(string: wolframURL) {
+                        VStack {
+                            HStack {
+                                Text("Wolfram MathWorld: Base")
+                                    .font(.body)
+                                Spacer()
+                                Button {
+                                    UIApplication.shared.open(url)
+                                } label: {
+                                    Image(systemName: "arrow.up.right.square")
+                                        .imageScale(.large)
+                                        .foregroundColor(.blue)
+                                }
+                            }
+                            .padding(.vertical, 2)
+                        }
+                    }
+                    
+                    if let url = URL(string: appStoreURL) {
+                        VStack {
+                            HStack {
+                                Text("Rate this app!")
+                                    .font(.body)
+                                Spacer()
+                                Button {
+                                    UIApplication.shared.open(url)
+                                } label: {
+                                    Image(systemName: "arrow.up.right.square")
+                                        .imageScale(.large)
+                                        .foregroundColor(.blue)
+                                }
+                            }
+                            .padding(.vertical, 2)
+                        }
+                    }
+                    
+                    if let url = URL(string: githubIssuesURL) {
+                        VStack {
+                            HStack {
+                                Text("Found a bug? Submit an issue")
+                                    .font(.body)
+                                Spacer()
+                                Button {
+                                    UIApplication.shared.open(url)
+                                } label: {
+                                    Image(systemName: "arrow.up.right.square")
+                                        .imageScale(.large)
+                                        .foregroundColor(.blue)
+                                }
+                            }
+                            .padding(.vertical, 2)
+                        }
                     }
                 }
                 
