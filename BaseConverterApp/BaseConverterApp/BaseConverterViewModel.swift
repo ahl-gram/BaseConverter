@@ -39,8 +39,8 @@ class BaseConverterViewModel: ObservableObject {
     @Published var validationMessage: String?
     
     // Range constraints
-    let minValue = -1_000_000_000
-    let maxValue = 1_000_000_000
+    let minValue = -1_000_000_000_000
+    let maxValue = 1_000_000_000_000
     
     // Validation patterns
     private let base2Pattern = "^-?[01]+$"
@@ -53,9 +53,6 @@ class BaseConverterViewModel: ObservableObject {
     
     // Cancellables
     private var cancellables = Set<AnyCancellable>()
-    
-    // Maximum display length for base inputs
-    private let maxDisplayLength = 30
     
     init() {
         // Set up subscriptions for each input field

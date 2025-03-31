@@ -21,7 +21,7 @@ final class KeyboardDisabledTextFieldTests: XCTestCase {
         
         // Verify the keyboard is disabled
         XCTAssertNotNil(textField.inputView, "Input view should be set to prevent keyboard")
-        XCTAssert(textField.inputView is UIView, "Input view should be a simple UIView to block keyboard")
+        XCTAssert(textField.inputView != nil, "Input view should be a simple UIView to block keyboard")
         
         // Verify settings work as expected
         XCTAssertEqual(textField.placeholder, "Test Placeholder")

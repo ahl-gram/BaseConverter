@@ -52,23 +52,23 @@ final class BaseConverterViewModelTests: XCTestCase {
     
     func testRangeValidation() async {
         // Test number within range
-        viewModel.base10Input = "1000000000"
+        viewModel.base10Input = "10000000000"
         await Task.yield()
         XCTAssertNil(viewModel.errorMessage)
         
         // Test number above range
-        viewModel.base10Input = "1000000001"
+        viewModel.base10Input = "1000000000001"
         await Task.yield()
         XCTAssertNotNil(viewModel.errorMessage)
-        XCTAssertEqual(viewModel.errorMessage, "Result must be between -1000000000 and 1000000000")
+        XCTAssertEqual(viewModel.errorMessage, "Result must be between -1000000000000 and 1000000000000")
         
         // Test negative number within range
-        viewModel.base10Input = "-1000000000"
+        viewModel.base10Input = "-10000000000"
         await Task.yield()
         XCTAssertNil(viewModel.errorMessage)
         
         // Test negative number below range
-        viewModel.base10Input = "-1000000001"
+        viewModel.base10Input = "-1000000000001"
         await Task.yield()
         XCTAssertNotNil(viewModel.errorMessage)
     }
