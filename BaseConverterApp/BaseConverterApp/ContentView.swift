@@ -252,9 +252,9 @@ struct ContentView: View {
                 }
             }
         case "INCREMENT": // Handle incrementing value
-            incrementValue(in: focusedField)
+            viewModel.incrementValue()
         case "DECREMENT": // Handle decrementing value
-            decrementValue(in: focusedField)
+            viewModel.decrementValue()
         case "-": // Handle negative sign
             // Only allow adding the negative sign at the beginning
             switch focusedField {
@@ -322,30 +322,6 @@ struct ContentView: View {
                     viewModel.base16Input.append(key)
                 }
             }
-        }
-    }
-    
-    // Increment the value in the specified field
-    func incrementValue(in field: BaseField) {
-        // Use the base10Input as the working value if it's valid
-        if let currentDecimal = Int(viewModel.base10Input) {
-            // Increment by 1
-            let newDecimal = currentDecimal + 1
-            // Update the base10 field
-            viewModel.base10Input = String(newDecimal)
-            // Conversions to other bases happen automatically through the ViewModel
-        }
-    }
-    
-    // Decrement the value in the specified field
-    func decrementValue(in field: BaseField) {
-        // Use the base10Input as the working value if it's valid
-        if let currentDecimal = Int(viewModel.base10Input) {
-            // Decrement by 1
-            let newDecimal = currentDecimal - 1
-            // Update the base10 field
-            viewModel.base10Input = String(newDecimal)
-            // Conversions to other bases happen automatically through the ViewModel
         }
     }
 }

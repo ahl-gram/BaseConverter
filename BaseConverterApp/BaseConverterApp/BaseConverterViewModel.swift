@@ -219,6 +219,30 @@ class BaseConverterViewModel: ObservableObject {
         validationMessage = nil
     }
     
+    // Increment the current value by 1
+    func incrementValue() {
+        // Use the base10Input as the working value if it's valid
+        if let currentDecimal = Int(base10Input) {
+            // Increment by 1
+            let newDecimal = currentDecimal + 1
+            // Update the base10 field
+            base10Input = String(newDecimal)
+            // Conversions to other bases happen automatically through binding
+        }
+    }
+    
+    // Decrement the current value by 1
+    func decrementValue() {
+        // Use the base10Input as the working value if it's valid
+        if let currentDecimal = Int(base10Input) {
+            // Decrement by 1
+            let newDecimal = currentDecimal - 1
+            // Update the base10 field
+            base10Input = String(newDecimal)
+            // Conversions to other bases happen automatically through binding
+        }
+    }
+    
     private func validateSpecificInput(_ input: String, pattern: String, setter: (Bool) -> Void) {
         if input.isEmpty {
             setter(true)
