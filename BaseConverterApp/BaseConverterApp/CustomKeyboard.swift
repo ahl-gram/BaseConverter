@@ -8,7 +8,7 @@ struct CustomKeyboard: View {
     // Callback function to handle keyboard input
     var onKeyTap: (String) -> Void
     // Currently focused field (if any)
-    var focusedField: ContentView.BaseField?
+    var focusedField: BaseField?
     // Add message parameters
     var errorMessage: String?
     var validationMessage: String?
