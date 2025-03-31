@@ -202,8 +202,8 @@ struct ContentView: View {
                 .foregroundColor(field.themeColor)
                 .dynamicTypeSize(.small ... .xxxLarge) // Enable Dynamic Type
             
-            // Use our custom KeyboardDisabledTextField
-            KeyboardDisabledTextField(
+            // Use our custom CustomKeyboardTextField
+            CustomKeyboardTextField(
                 text: text,
                 placeholder: text.wrappedValue.isEmpty ? "\(field.description)" : ""
             )

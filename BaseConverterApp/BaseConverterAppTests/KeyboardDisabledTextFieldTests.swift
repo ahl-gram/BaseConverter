@@ -47,7 +47,7 @@ final class KeyboardDisabledTextFieldTests: XCTestCase {
         )
         
         // Create coordinator with our binding
-        let coordinator = KeyboardDisabledTextField.Coordinator(text: binding)
+        let coordinator = CustomKeyboardTextField.Coordinator(text: binding)
         
         // Create a UITextField for testing
         let textField = UITextField()
@@ -72,7 +72,7 @@ final class KeyboardDisabledTextFieldTests: XCTestCase {
             get: { "Test" },
             set: { _ in }
         )
-        let coordinator = KeyboardDisabledTextField.Coordinator(text: binding)
+        let coordinator = CustomKeyboardTextField.Coordinator(text: binding)
         
         // Create a test text field
         let textField = UITextField()

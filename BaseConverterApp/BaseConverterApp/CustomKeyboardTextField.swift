@@ -41,7 +41,7 @@ class TruncatingTextField: UITextField {
     }
 }
 
-struct KeyboardDisabledTextField: UIViewRepresentable {
+struct CustomKeyboardTextField: UIViewRepresentable {
     @Binding var text: String
     var placeholder: String
     
