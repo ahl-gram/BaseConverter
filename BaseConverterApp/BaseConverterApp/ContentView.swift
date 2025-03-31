@@ -25,6 +25,10 @@ struct BaseInputStyle: ViewModifier {
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(isValid ? themeColor.opacity(0.5) : Color.red, lineWidth: 1)
             )
+            .frame(height: 60)  // Set a fixed height for the input field container
+            .frame(maxWidth: .infinity) // Enforce maximum width constraint
+            .fixedSize(horizontal: false, vertical: true) // Only allow vertical growth
+            .clipShape(RoundedRectangle(cornerRadius: 10))  // Ensure content is clipped to the container
     }
 }
 
@@ -132,6 +136,7 @@ struct ContentView: View {
                                 field: .base16
                             )
                         }
+                        .frame(maxWidth: geometry.size.width - 32) // Fixed width based on screen
                         
                         Spacer() // Push content to the top
                     }
@@ -211,7 +216,11 @@ struct ContentView: View {
             .accessibilityLabel("\(field.description) input")
             .accessibilityValue(text.wrappedValue.isEmpty ? "Empty" : text.wrappedValue)
             .accessibilityHint("Tap to enter \(field.description) value. Valid characters are \(field.displayValidCharacters)")
+            .frame(maxWidth: .infinity)
+            .fixedSize(horizontal: false, vertical: true) // Only allow vertical growth
         }
+        .frame(maxWidth: .infinity)
+        .fixedSize(horizontal: false, vertical: true) // Also constrain the parent
     }
     
     // Handle key taps from the custom keyboard

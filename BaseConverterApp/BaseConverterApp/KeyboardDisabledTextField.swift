@@ -1,12 +1,52 @@
 import SwiftUI
 import UIKit
 
+// Custom UITextField subclass that enforces text truncation
+class TruncatingTextField: UITextField {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        // Ensure text is properly truncated
+        self.adjustsFontSizeToFitWidth = true
+        self.minimumFontSize = 9
+        
+        // Force text to truncate if needed
+        if let text = self.text, !text.isEmpty {
+            let size = text.size(withAttributes: self.defaultTextAttributes)
+            if size.width > bounds.width - 16 { // Account for insets
+                // Force redraw to apply truncation
+                self.setNeedsDisplay()
+            }
+        }
+    }
+    
+    // Override to ensure long text gets truncated
+    override func textRect(forBounds bounds: CGRect) -> CGRect {
+        // Apply fixed insets to ensure text doesn't expand beyond bounds
+        return bounds.insetBy(dx: 8, dy: 0)
+    }
+    
+    override func editingRect(forBounds bounds: CGRect) -> CGRect {
+        // Apply same insets to editing area
+        return bounds.insetBy(dx: 8, dy: 0)
+    }
+    
+    // Prevent text from expanding field
+    override var intrinsicContentSize: CGSize {
+        // Return a fixed size based on superview if available
+        if let superview = self.superview {
+            return CGSize(width: superview.bounds.width - 16, height: super.intrinsicContentSize.height)
+        }
+        return super.intrinsicContentSize
+    }
+}
+
 struct KeyboardDisabledTextField: UIViewRepresentable {
     @Binding var text: String
     var placeholder: String
     
     func makeUIView(context: Context) -> UITextField {
-        let textField = UITextField()
+        let textField = TruncatingTextField()
         textField.placeholder = placeholder
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
@@ -22,9 +62,17 @@ struct KeyboardDisabledTextField: UIViewRepresentable {
         textField.font = UIFont.preferredFont(forTextStyle: .body)
         
         // Configure text field for better handling of long text
-        textField.adjustsFontSizeToFitWidth = false
-        textField.minimumFontSize = 12
+        textField.adjustsFontSizeToFitWidth = true
+        textField.minimumFontSize = 9
         textField.textAlignment = .left
+        
+        // Configure for text truncation
+        textField.allowsEditingTextAttributes = false
+        
+        // Use line truncation through NSParagraphStyle
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineBreakMode = .byTruncatingTail
+        textField.defaultTextAttributes[NSAttributedString.Key.paragraphStyle] = paragraphStyle
         
         // Configure scrolling behavior for long content
         textField.clearsOnBeginEditing = false

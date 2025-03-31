@@ -54,6 +54,9 @@ class BaseConverterViewModel: ObservableObject {
     // Cancellables
     private var cancellables = Set<AnyCancellable>()
     
+    // Maximum display length for base inputs
+    private let maxDisplayLength = 30
+    
     init() {
         // Set up subscriptions for each input field
         $base2Input
@@ -145,16 +148,20 @@ class BaseConverterViewModel: ObservableObject {
             
             // Convert to other bases
             if base != 2 {
-                base2Input = try BaseConverter.convert(input: input, from: base, to: 2)
+                let result = try BaseConverter.convert(input: input, from: base, to: 2)
+                base2Input = result
             }
             if base != 10 {
-                base10Input = try BaseConverter.convert(input: input, from: base, to: 10)
+                let result = try BaseConverter.convert(input: input, from: base, to: 10)
+                base10Input = result
             }
             if base != 12 {
-                base12Input = try BaseConverter.convert(input: input, from: base, to: 12)
+                let result = try BaseConverter.convert(input: input, from: base, to: 12)
+                base12Input = result
             }
             if base != 16 {
-                base16Input = try BaseConverter.convert(input: input, from: base, to: 16)
+                let result = try BaseConverter.convert(input: input, from: base, to: 16)
+                base16Input = result
             }
             
             errorMessage = nil
