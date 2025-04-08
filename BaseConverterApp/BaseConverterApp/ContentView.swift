@@ -130,9 +130,6 @@ struct ContentView: View {
     private func handleKeyTap(_ key: String) {
         guard let focusedField = focusedField else { return }
         
-        // Define a maximum character limit to prevent overflow
-        let maxCharLimit = 20
-        
         switch key {
         case "⌫": // Backspace
             // Handle backspace for each field
@@ -206,22 +203,22 @@ struct ContentView: View {
                 }
             }
         default: // Handle digit keys
-            // Check if the key is valid for the focused field and under the character limit
+            // Check if the key is valid for the focused field and wouldn't exceed the maximum value
             switch focusedField {
             case .base2:
-                if "01".contains(key) && viewModel.base2Input.count < maxCharLimit {
+                if "01".contains(key) && viewModel.isWithinMaxValue(viewModel.base2Input + key, base: 2) {
                     viewModel.base2Input.append(key)
                 }
             case .base10:
-                if "0123456789".contains(key) && viewModel.base10Input.count < maxCharLimit {
+                if "0123456789".contains(key) && viewModel.isWithinMaxValue(viewModel.base10Input + key, base: 10) {
                     viewModel.base10Input.append(key)
                 }
             case .base12:
-                if "0123456789XE".contains(key) && viewModel.base12Input.count < maxCharLimit {
+                if "0123456789XE".contains(key) && viewModel.isWithinMaxValue(viewModel.base12Input + key, base: 12) {
                     viewModel.base12Input.append(key)
                 }
             case .base16:
-                if "0123456789ABCDEF".contains(key) && viewModel.base16Input.count < maxCharLimit {
+                if "0123456789ABCDEF".contains(key) && viewModel.isWithinMaxValue(viewModel.base16Input + key, base: 16) {
                     viewModel.base16Input.append(key)
                 }
             }

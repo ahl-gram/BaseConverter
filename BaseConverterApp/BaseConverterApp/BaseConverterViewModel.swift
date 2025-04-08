@@ -273,4 +273,19 @@ class BaseConverterViewModel: ObservableObject {
             }
         }
     }
+    
+    // Helper function to check if a value is within the maxValue limit
+    func isWithinMaxValue(_ input: String, base: Int) -> Bool {
+        // Empty strings are valid
+        if input.isEmpty || input == "-" { return true }
+        
+        // Try to convert the input to decimal to check against maxValue
+        do {
+            let decimal = try BaseConverter.toDecimal(string: input, from: base)
+            return decimal >= minValue && decimal <= maxValue
+        } catch {
+            // If conversion fails, don't allow the digit
+            return false
+        }
+    }
 } 

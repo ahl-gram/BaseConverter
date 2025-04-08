@@ -180,4 +180,42 @@ final class BaseConverterViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.errorMessage)
         XCTAssertNil(viewModel.validationMessage)
     }
+    
+    // Tests for the new isWithinMaxValue validation function
+    func testIsWithinMaxValueValid() {
+        // Test values within range
+        XCTAssertTrue(viewModel.isWithinMaxValue("1000", base: 10))
+        XCTAssertTrue(viewModel.isWithinMaxValue("-1000", base: 10))
+        XCTAssertTrue(viewModel.isWithinMaxValue("0", base: 10))
+        
+        // Test values at the exact limits
+        XCTAssertTrue(viewModel.isWithinMaxValue("1000000000000", base: 10)) // Max value
+        XCTAssertTrue(viewModel.isWithinMaxValue("-1000000000000", base: 10)) // Min value
+    }
+    
+    func testIsWithinMaxValueInvalid() {
+        // Test values exceeding range
+        XCTAssertFalse(viewModel.isWithinMaxValue("1000000000001", base: 10)) // Over max
+        XCTAssertFalse(viewModel.isWithinMaxValue("-1000000000001", base: 10)) // Under min
+        
+        // Test very large values in different bases that would exceed the decimal range
+        XCTAssertFalse(viewModel.isWithinMaxValue("1111111111111111111111111111111111111111", base: 2)) // Large binary
+        XCTAssertFalse(viewModel.isWithinMaxValue("FFFFFFFFFFFFF", base: 16)) // Large hex
+    }
+    
+    func testIsWithinMaxValueEdgeCases() {
+        // Test empty input
+        XCTAssertTrue(viewModel.isWithinMaxValue("", base: 10))
+        
+        // Test just the negative sign
+        XCTAssertTrue(viewModel.isWithinMaxValue("-", base: 10))
+        
+        // Test invalid input that can't be parsed
+        XCTAssertFalse(viewModel.isWithinMaxValue("ABC", base: 10)) // Invalid for base 10
+        XCTAssertFalse(viewModel.isWithinMaxValue("2", base: 2)) // Invalid for binary
+        
+        // Base 12 and 16 specific tests
+        XCTAssertTrue(viewModel.isWithinMaxValue("E5", base: 12)) // Valid base 12
+        XCTAssertTrue(viewModel.isWithinMaxValue("FF", base: 16)) // Valid base 16
+    }
 } 
