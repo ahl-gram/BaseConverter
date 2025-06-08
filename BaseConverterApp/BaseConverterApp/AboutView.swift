@@ -20,6 +20,7 @@ struct AboutView: View {
     // Define colors for each base (matching ContentView)
     private let baseColors = [
         "Binary": Color.blue,
+        "Octal": Color.yellow,
         "Decimal": Color.green,
         "Duodecimal": Color.purple,
         "Hexadecimal": Color.orange
@@ -50,6 +51,16 @@ struct AboutView: View {
                             .bold()
                             .foregroundColor(baseColors["Binary"])
                         Text("Uses only 0 and 1. The foundation of digital computing.")
+                            .padding(.leading, 16)
+                    }
+                    .padding(.bottom, 8)
+                    
+                    // Base 8 (Octal)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Octal (Base 8)")
+                            .bold()
+                            .foregroundColor(baseColors["Octal"])
+                        Text("Uses digits 0-7. Often used in computing and file permissions.")
                             .padding(.leading, 16)
                     }
                     .padding(.bottom, 8)

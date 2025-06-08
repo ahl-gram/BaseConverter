@@ -1,10 +1,10 @@
 # Base Converter
 
-A simple and intuitive iOS application for converting numbers between different bases (Base 2, Base 10, Base 12, and Base 16) with additional arithmetic operation capabilities. Built using SwiftUI with the help of Cursor and Claude Sonnet.
+A simple and intuitive iOS application for converting numbers between different bases (Base 2, Base 8, Base 10, Base 12, and Base 16) with additional arithmetic operation capabilities. Built using SwiftUI with the help of Cursor and Claude Sonnet.
 
 ## Features
 
-- Convert numbers between Base 2, Base 10, Base 12, and Base 16
+- Convert numbers between Base 2, Base 8, Base 10, Base 12, and Base 16
 - Perform arithmetic operations (addition, subtraction, multiplication, division)
 - Real-time conversion as you type
 - Clean and modern SwiftUI interface
