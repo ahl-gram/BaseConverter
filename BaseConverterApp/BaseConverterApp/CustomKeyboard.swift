@@ -15,6 +15,14 @@ struct CustomKeyboard: View {
 
     // Function to determine the color of each key based on what bases it's used in
     func colorForKey(_ key: String) -> Color {
+        let actualKey = displayKey(key)
+
+        // If a field is focused, and the key is valid for that field, use the field's theme color.
+        if let field = focusedField, field.validCharacters.contains(actualKey) {
+            return field.themeColor
+        }
+        
+        // Otherwise, fallback to the default color scheme.
         switch key {
         case "0", "1":
             // Used in all bases, use binary color as most restrictive
