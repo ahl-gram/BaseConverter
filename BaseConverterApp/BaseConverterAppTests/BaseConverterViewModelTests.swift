@@ -15,6 +15,12 @@ final class BaseConverterViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.isBase2Valid)
         viewModel.base2Input = "102"
         XCTAssertFalse(viewModel.isBase2Valid)
+
+        // Test Base 8 validation
+        viewModel.base8Input = "12"
+        XCTAssertTrue(viewModel.isBase8Valid)
+        viewModel.base8Input = "18"
+        XCTAssertFalse(viewModel.isBase8Valid)
         
         // Test Base 10 validation
         viewModel.base10Input = "123"
@@ -39,6 +45,9 @@ final class BaseConverterViewModelTests: XCTestCase {
         // Test negative numbers in different bases
         viewModel.base2Input = "-1010"
         XCTAssertTrue(viewModel.isBase2Valid)
+
+        viewModel.base8Input = "-12"
+        XCTAssertTrue(viewModel.isBase8Valid)
         
         viewModel.base10Input = "-123"
         XCTAssertTrue(viewModel.isBase10Valid)
@@ -114,6 +123,7 @@ final class BaseConverterViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.base10Input, "10")
         XCTAssertEqual(viewModel.base12Input, "X")
         XCTAssertEqual(viewModel.base16Input, "A")
+        XCTAssertEqual(viewModel.base8Input, "12")
         XCTAssertNil(viewModel.errorMessage)
     }
     
@@ -124,6 +134,7 @@ final class BaseConverterViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.base2Input, "1111")
         XCTAssertEqual(viewModel.base12Input, "13")
         XCTAssertEqual(viewModel.base16Input, "F")
+        XCTAssertEqual(viewModel.base8Input, "17")
         XCTAssertNil(viewModel.errorMessage)
     }
     
@@ -134,6 +145,7 @@ final class BaseConverterViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.base2Input, "1010")
         XCTAssertEqual(viewModel.base10Input, "10")
         XCTAssertEqual(viewModel.base16Input, "A")
+        XCTAssertEqual(viewModel.base8Input, "12")
         XCTAssertNil(viewModel.errorMessage)
     }
     
@@ -144,6 +156,7 @@ final class BaseConverterViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.base2Input, "11111111")
         XCTAssertEqual(viewModel.base10Input, "255")
         XCTAssertEqual(viewModel.base12Input, "193")
+        XCTAssertEqual(viewModel.base8Input, "377")
         XCTAssertNil(viewModel.errorMessage)
     }
     
@@ -163,6 +176,7 @@ final class BaseConverterViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.base10Input, "")
         XCTAssertEqual(viewModel.base12Input, "")
         XCTAssertEqual(viewModel.base16Input, "")
+        XCTAssertEqual(viewModel.base8Input, "")
         XCTAssertNil(viewModel.errorMessage)
         XCTAssertNil(viewModel.validationMessage)
     }
@@ -177,6 +191,7 @@ final class BaseConverterViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.base2Input, "")
         XCTAssertEqual(viewModel.base12Input, "")
         XCTAssertEqual(viewModel.base16Input, "")
+        XCTAssertEqual(viewModel.base8Input, "")
         XCTAssertNil(viewModel.errorMessage)
         XCTAssertNil(viewModel.validationMessage)
     }

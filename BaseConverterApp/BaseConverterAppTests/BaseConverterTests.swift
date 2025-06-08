@@ -8,6 +8,13 @@ final class BaseConverterTests: XCTestCase {
         XCTAssertEqual(try BaseConverter.convert(input: "0", from: 10, to: 2), "0")
         XCTAssertEqual(try BaseConverter.convert(input: "-10", from: 10, to: 2), "-1010")
     }
+
+    func testDecimalToBase8() throws {
+        XCTAssertEqual(try BaseConverter.convert(input: "10", from: 10, to: 8), "12")
+        XCTAssertEqual(try BaseConverter.convert(input: "15", from: 10, to: 8), "17")
+        XCTAssertEqual(try BaseConverter.convert(input: "0", from: 10, to: 8), "0")
+        XCTAssertEqual(try BaseConverter.convert(input: "-10", from: 10, to: 8), "-12")
+    }
     
     func testDecimalToBase12() throws {
         XCTAssertEqual(try BaseConverter.convert(input: "10", from: 10, to: 12), "X")
@@ -28,6 +35,13 @@ final class BaseConverterTests: XCTestCase {
         XCTAssertEqual(try BaseConverter.convert(input: "1111", from: 2, to: 10), "15")
         XCTAssertEqual(try BaseConverter.convert(input: "0", from: 2, to: 10), "0")
         XCTAssertEqual(try BaseConverter.convert(input: "-1010", from: 2, to: 10), "-10")
+    }
+
+    func testBase8ToDecimal() throws {
+        XCTAssertEqual(try BaseConverter.convert(input: "12", from: 8, to: 10), "10")
+        XCTAssertEqual(try BaseConverter.convert(input: "17", from: 8, to: 10), "15")
+        XCTAssertEqual(try BaseConverter.convert(input: "0", from: 8, to: 10), "0")
+        XCTAssertEqual(try BaseConverter.convert(input: "-12", from: 8, to: 10), "-10")
     }
     
     func testBase12ToDecimal() throws {
@@ -63,6 +77,14 @@ final class BaseConverterTests: XCTestCase {
         } catch BaseConverterError.invalidDigitForBase(let digit, let base) {
             XCTAssertEqual(digit, "A")
             XCTAssertEqual(base, 12)
+        }
+
+        do {
+            _ = try BaseConverter.convert(input: "8", from: 8, to: 10)
+            XCTFail("Expected error for invalid base 8 digit")
+        } catch BaseConverterError.invalidDigitForBase(let digit, let base) {
+            XCTAssertEqual(digit, "8")
+            XCTAssertEqual(base, 8)
         }
     }
     

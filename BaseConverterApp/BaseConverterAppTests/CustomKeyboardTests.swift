@@ -11,9 +11,13 @@ final class CustomKeyboardTests: XCTestCase {
         // Test binary colors
         XCTAssertEqual(keyboard.colorForKey("0"), BaseTheme.binary)
         XCTAssertEqual(keyboard.colorForKey("1"), BaseTheme.binary)
+
+        // Test octal colors
+        XCTAssertEqual(keyboard.colorForKey("2"), BaseTheme.octal)
+        XCTAssertEqual(keyboard.colorForKey("7"), BaseTheme.octal)
         
         // Test decimal colors
-        XCTAssertEqual(keyboard.colorForKey("2"), BaseTheme.decimal)
+        XCTAssertEqual(keyboard.colorForKey("2"), BaseTheme.octal)
         XCTAssertEqual(keyboard.colorForKey("9"), BaseTheme.decimal)
         
         // Test duodecimal colors
@@ -33,6 +37,7 @@ final class CustomKeyboardTests: XCTestCase {
     func testKeyValidation() {
         // Setup keyboards for different bases
         let keyboardWithBase2 = CustomKeyboard(onKeyTap: { _ in }, focusedField: .base2)
+        let keyboardWithBase8 = CustomKeyboard(onKeyTap: { _ in }, focusedField: .base8)
         let keyboardWithBase10 = CustomKeyboard(onKeyTap: { _ in }, focusedField: .base10)
         let keyboardWithBase12 = CustomKeyboard(onKeyTap: { _ in }, focusedField: .base12)
         let keyboardWithBase16 = CustomKeyboard(onKeyTap: { _ in }, focusedField: .base16)
@@ -46,6 +51,16 @@ final class CustomKeyboardTests: XCTestCase {
         XCTAssertTrue(keyboardWithBase2.isKeyValid("-"))  // Negative sign should be valid for all bases
         XCTAssertFalse(keyboardWithBase2.isKeyValid("E_DUO"))
         XCTAssertFalse(keyboardWithBase2.isKeyValid("E_HEX"))
+        
+        // Test octal field validation
+        XCTAssertTrue(keyboardWithBase8.isKeyValid("0"))
+        XCTAssertTrue(keyboardWithBase8.isKeyValid("7"))
+        XCTAssertFalse(keyboardWithBase8.isKeyValid("8"))
+        XCTAssertFalse(keyboardWithBase8.isKeyValid("A"))
+        XCTAssertFalse(keyboardWithBase8.isKeyValid("X"))
+        XCTAssertTrue(keyboardWithBase8.isKeyValid("-"))  // Negative sign should be valid for all bases
+        XCTAssertFalse(keyboardWithBase8.isKeyValid("E_DUO"))
+        XCTAssertFalse(keyboardWithBase8.isKeyValid("E_HEX"))
         
         // Test decimal field validation
         XCTAssertTrue(keyboardWithBase10.isKeyValid("0"))

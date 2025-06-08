@@ -39,9 +39,10 @@ final class ContentViewTests: XCTestCase {
         
         // Check that the value was incremented
         XCTAssertEqual(viewModel.base10Input, "6")
-        
+        XCTAssertEqual(viewModel.base8Input, "6")
         // Check that other bases were updated correctly
         XCTAssertEqual(viewModel.base2Input, "110")
+        XCTAssertEqual(viewModel.base8Input, "6")
         XCTAssertEqual(viewModel.base12Input, "6")
         XCTAssertEqual(viewModel.base16Input, "6")
     }
@@ -53,10 +54,12 @@ final class ContentViewTests: XCTestCase {
         
         // Check that the value was decremented
         XCTAssertEqual(viewModel.base10Input, "4")
-        
+        XCTAssertEqual(viewModel.base8Input, "4")
         // Check that other bases were updated correctly
         XCTAssertEqual(viewModel.base2Input, "100")
+        XCTAssertEqual(viewModel.base8Input, "4")
         XCTAssertEqual(viewModel.base12Input, "4")
+        XCTAssertEqual(viewModel.base8Input, "4")
         XCTAssertEqual(viewModel.base16Input, "4")
     }
     
@@ -72,6 +75,7 @@ final class ContentViewTests: XCTestCase {
         // Check that value changed from 0 to 1
         XCTAssertEqual(viewModel.base10Input, "1")
         XCTAssertEqual(viewModel.base2Input, "1")
+        XCTAssertEqual(viewModel.base8Input, "1")
         XCTAssertEqual(viewModel.base12Input, "1")
         XCTAssertEqual(viewModel.base16Input, "1")
     }
@@ -88,6 +92,7 @@ final class ContentViewTests: XCTestCase {
         // Check that value changed from 0 to -1
         XCTAssertEqual(viewModel.base10Input, "-1")
         XCTAssertEqual(viewModel.base2Input, "-1")
+        XCTAssertEqual(viewModel.base8Input, "-1")
         XCTAssertEqual(viewModel.base12Input, "-1")
         XCTAssertEqual(viewModel.base16Input, "-1")
     }
@@ -104,6 +109,7 @@ final class ContentViewTests: XCTestCase {
         // Check that value changed from -5 to -4
         XCTAssertEqual(viewModel.base10Input, "-4")
         XCTAssertEqual(viewModel.base2Input, "-100")
+        XCTAssertEqual(viewModel.base8Input, "-4")
         XCTAssertEqual(viewModel.base12Input, "-4")
         XCTAssertEqual(viewModel.base16Input, "-4")
     }
@@ -120,6 +126,7 @@ final class ContentViewTests: XCTestCase {
         // Check that value changed from -5 to -6
         XCTAssertEqual(viewModel.base10Input, "-6")
         XCTAssertEqual(viewModel.base2Input, "-110")
+        XCTAssertEqual(viewModel.base8Input, "-6")
         XCTAssertEqual(viewModel.base12Input, "-6")
         XCTAssertEqual(viewModel.base16Input, "-6")
     }
@@ -136,6 +143,7 @@ final class ContentViewTests: XCTestCase {
         // Check that values remain empty
         XCTAssertEqual(viewModel.base10Input, "")
         XCTAssertEqual(viewModel.base2Input, "")
+        XCTAssertEqual(viewModel.base8Input, "")
         XCTAssertEqual(viewModel.base12Input, "")
         XCTAssertEqual(viewModel.base16Input, "")
     }
@@ -152,6 +160,7 @@ final class ContentViewTests: XCTestCase {
         // Check that values remain empty
         XCTAssertEqual(viewModel.base10Input, "")
         XCTAssertEqual(viewModel.base2Input, "")
+        XCTAssertEqual(viewModel.base8Input, "")
         XCTAssertEqual(viewModel.base12Input, "")
         XCTAssertEqual(viewModel.base16Input, "")
     }
