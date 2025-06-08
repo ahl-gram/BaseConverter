@@ -9,6 +9,12 @@ class BaseConverterViewModel: ObservableObject {
             cleanInputIfNeeded(base2Input, base: 2)
         }
     }
+    @Published var base8Input = "" {
+        didSet { 
+            validateSpecificInput(base8Input, pattern: base8Pattern, setter: { self.isBase8Valid = $0 })
+            cleanInputIfNeeded(base8Input, base: 8)
+        }
+    }
     @Published var base10Input = "" {
         didSet { 
             validateSpecificInput(base10Input, pattern: base10Pattern, setter: { self.isBase10Valid = $0 })
@@ -30,6 +36,7 @@ class BaseConverterViewModel: ObservableObject {
     
     // Validation properties
     @Published var isBase2Valid = true
+    @Published var isBase8Valid = true
     @Published var isBase10Valid = true
     @Published var isBase12Valid = true
     @Published var isBase16Valid = true
@@ -43,6 +50,7 @@ class BaseConverterViewModel: ObservableObject {
     let maxValue = 1_000_000_000_000
     
     // Validation patterns
+    private let base8Pattern = "^-?[0-7]+$"
     private let base2Pattern = "^-?[01]+$"
     private let base10Pattern = "^-?[0-9]+$"
     private let base12Pattern = "^-?[0-9XE]+$"
@@ -83,10 +91,18 @@ class BaseConverterViewModel: ObservableObject {
                 self?.handleInputChange(input, from: 16)
             }
             .store(in: &cancellables)
+
+        $base8Input
+            .removeDuplicates()
+            .sink { [weak self] input in
+                self?.handleInputChange(input, from: 8)
+            }
+            .store(in: &cancellables)
     }
     
     func updateValidation() {
         isBase2Valid = validateInput(base2Input, pattern: base2Pattern)
+        isBase8Valid = validateInput(base8Input, pattern: base8Pattern)
         isBase10Valid = validateInput(base10Input, pattern: base10Pattern)
         isBase12Valid = validateInput(base12Input, pattern: base12Pattern)
         isBase16Valid = validateInput(base16Input, pattern: base16Pattern)
@@ -123,6 +139,7 @@ class BaseConverterViewModel: ObservableObject {
             case 10: base10Input = cleanedInput
             case 12: base12Input = cleanedInput
             case 16: base16Input = cleanedInput
+            case 8: base8Input = cleanedInput
             default: break
             }
             
@@ -160,6 +177,10 @@ class BaseConverterViewModel: ObservableObject {
                 let result = try BaseConverter.convert(input: input, from: base, to: 16)
                 base16Input = result
             }
+            if base != 8 {
+                let result = try BaseConverter.convert(input: input, from: base, to: 8)
+                base8Input = result
+            }
             
             errorMessage = nil
             updateValidationMessage(for: decimal)
@@ -178,6 +199,7 @@ class BaseConverterViewModel: ObservableObject {
         if base != 10 { base10Input = "" }
         if base != 12 { base12Input = "" }
         if base != 16 { base16Input = "" }
+        if base != 8 { base8Input = "" }
     }
     
     private func cleanInput(_ input: String) -> String {
@@ -212,6 +234,7 @@ class BaseConverterViewModel: ObservableObject {
         base10Input = ""
         base12Input = ""
         base16Input = ""
+        base8Input = ""
         errorMessage = nil
         validationMessage = nil
     }
@@ -262,6 +285,7 @@ class BaseConverterViewModel: ObservableObject {
                 case 10: self.base10Input = cleaned
                 case 12: self.base12Input = cleaned
                 case 16: self.base16Input = cleaned
+                case 8: self.base8Input = cleaned
                 default: break
                 }
                 

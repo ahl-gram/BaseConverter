@@ -44,6 +44,15 @@ struct ContentView: View {
                                 viewModel: viewModel,
                                 focusedField: _focusedField
                             )
+
+                             BaseInputField(
+                                title: "Base 8",
+                                text: $viewModel.base8Input,
+                                isValid: viewModel.isBase8Valid,
+                                field: .base8,
+                                viewModel: viewModel,
+                                focusedField: _focusedField
+                            )
                             
                             BaseInputField(
                                 title: "Base 10",
@@ -138,6 +147,10 @@ struct ContentView: View {
                 if !viewModel.base2Input.isEmpty {
                     viewModel.base2Input.removeLast()
                 }
+            case .base8:
+                if !viewModel.base8Input.isEmpty {
+                    viewModel.base8Input.removeLast()
+                }
             case .base10:
                 if !viewModel.base10Input.isEmpty {
                     viewModel.base10Input.removeLast()
@@ -170,6 +183,16 @@ struct ContentView: View {
                 } else {
                     // Add the negative sign at the beginning
                     viewModel.base2Input = "-" + viewModel.base2Input
+                }
+            case .base8:
+                if viewModel.base8Input.isEmpty {
+                    viewModel.base8Input = "-"
+                } else if viewModel.base8Input == "-" {
+                    viewModel.base8Input = ""
+                } else if viewModel.base8Input.hasPrefix("-") {
+                    viewModel.base8Input.removeFirst()
+                } else {
+                    viewModel.base8Input = "-" + viewModel.base8Input
                 }
             case .base10:
                 if viewModel.base10Input.isEmpty {
@@ -208,6 +231,10 @@ struct ContentView: View {
             case .base2:
                 if "01".contains(key) && viewModel.isWithinMaxValue(viewModel.base2Input + key, base: 2) {
                     viewModel.base2Input.append(key)
+                }
+            case .base8:
+                if "01234567".contains(key) && viewModel.isWithinMaxValue(viewModel.base8Input + key, base: 8) {
+                    viewModel.base8Input.append(key)
                 }
             case .base10:
                 if "0123456789".contains(key) && viewModel.isWithinMaxValue(viewModel.base10Input + key, base: 10) {

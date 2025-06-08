@@ -27,7 +27,10 @@ struct CustomKeyboard: View {
         case "0", "1":
             // Used in all bases, use binary color as most restrictive
             return BaseTheme.binary
-        case "2", "3", "4", "5", "6", "7", "8", "9":
+        case "2", "3", "4", "5", "6", "7":
+            // Used in base 8
+            return BaseTheme.octal
+        case "8", "9":
             // Used in base 10, 12, and 16
             return BaseTheme.decimal
         case "X", "E_DUO": // Using E_DUO to distinguish duodecimal E

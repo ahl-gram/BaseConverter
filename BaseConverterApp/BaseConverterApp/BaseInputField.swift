@@ -68,11 +68,12 @@ struct BaseTheme {
     static let decimal = Color.green     // Decimal is standard/natural, green works well
     static let duodecimal = Color.purple // Duodecimal is special/unique, purple fits
     static let hexadecimal = Color.orange // Hex is often used in web/design, orange is creative
+    static let octal = Color.yellow // Octal is related to binary and hexadecimal, yellow is a good fit
 }
 
 /// Enum representing the different number base fields
 enum BaseField: Int, CaseIterable {
-    case base2, base10, base12, base16
+    case base2, base10, base12, base16, base8
     
     var validCharacters: String {
         switch self {
@@ -80,6 +81,7 @@ enum BaseField: Int, CaseIterable {
         case .base10: return "0123456789"
         case .base12: return "0123456789XE"
         case .base16: return "0123456789ABCDEF"
+        case .base8: return "01234567"
         }
     }
     
@@ -89,6 +91,7 @@ enum BaseField: Int, CaseIterable {
         case .base10: return "0-9"
         case .base12: return "0-9, X, E"
         case .base16: return "0-9, A-F"
+        case .base8: return "0-7"
         }
     }
     
@@ -98,6 +101,7 @@ enum BaseField: Int, CaseIterable {
         case .base10: return "Decimal"
         case .base12: return "Duodecimal"
         case .base16: return "Hexadecimal"
+        case .base8: return "Octal"
         }
     }
     
@@ -107,6 +111,7 @@ enum BaseField: Int, CaseIterable {
         case .base10: return BaseTheme.decimal
         case .base12: return BaseTheme.duodecimal
         case .base16: return BaseTheme.hexadecimal
+        case .base8: return BaseTheme.octal
         }
     }
 }
