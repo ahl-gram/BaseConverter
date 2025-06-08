@@ -45,18 +45,17 @@ struct BaseInputStyle: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .textFieldStyle(.roundedBorder)
-            .padding(8)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 10)
                     .fill(Color(uiColor: .systemBackground))
-                    .shadow(color: isValid ? themeColor.opacity(0.2) : .red.opacity(0.2), radius: 4)
+                    .shadow(color: isValid ? themeColor.opacity(0.3) : .red.opacity(0.3), radius: 5)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(isValid ? themeColor.opacity(0.5) : Color.red, lineWidth: 1)
+                    .stroke(isValid ? themeColor : Color.red, lineWidth: 2)
             )
-            .frame(height: 60)  // Set a fixed height for the input field container
             .frame(maxWidth: .infinity) // Enforce maximum width constraint
             .fixedSize(horizontal: false, vertical: true) // Only allow vertical growth
             .clipShape(RoundedRectangle(cornerRadius: 10))  // Ensure content is clipped to the container
