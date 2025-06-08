@@ -33,7 +33,7 @@ struct ContentView: View {
             GeometryReader { geometry in
                 VStack(spacing: 0) {
                     // Content section with input fields and messages
-                    VStack(spacing: 4) {
+                    VStack(spacing: -5) {
                         // Number Bases Section
                         VStack(alignment: .leading, spacing: 4) {
                             BaseInputField(
