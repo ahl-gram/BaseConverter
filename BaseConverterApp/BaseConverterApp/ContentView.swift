@@ -33,57 +33,52 @@ struct ContentView: View {
             GeometryReader { geometry in
                 VStack(spacing: 0) {
                     // Content section with input fields and messages
-                    VStack(spacing: -5) {
-                        // Number Bases Section
-                        VStack(alignment: .leading, spacing: 4) {
-                            BaseInputField(
-                                title: "Base 2",
-                                text: $viewModel.base2Input,
-                                isValid: viewModel.isBase2Valid,
-                                field: .base2,
-                                viewModel: viewModel,
-                                focusedField: _focusedField
-                            )
+                    VStack(alignment: .leading, spacing: 4) {
+                        BaseInputField(
+                            title: "Base 2",
+                            text: $viewModel.base2Input,
+                            isValid: viewModel.isBase2Valid,
+                            field: .base2,
+                            viewModel: viewModel,
+                            focusedField: _focusedField
+                        )
 
-                             BaseInputField(
-                                title: "Base 8",
-                                text: $viewModel.base8Input,
-                                isValid: viewModel.isBase8Valid,
-                                field: .base8,
-                                viewModel: viewModel,
-                                focusedField: _focusedField
-                            )
-                            
-                            BaseInputField(
-                                title: "Base 10",
-                                text: $viewModel.base10Input,
-                                isValid: viewModel.isBase10Valid,
-                                field: .base10,
-                                viewModel: viewModel,
-                                focusedField: _focusedField
-                            )
-                            
-                            BaseInputField(
-                                title: "Base 12",
-                                text: $viewModel.base12Input,
-                                isValid: viewModel.isBase12Valid,
-                                field: .base12,
-                                viewModel: viewModel,
-                                focusedField: _focusedField
-                            )
-                            
-                            BaseInputField(
-                                title: "Base 16",
-                                text: $viewModel.base16Input,
-                                isValid: viewModel.isBase16Valid,
-                                field: .base16,
-                                viewModel: viewModel,
-                                focusedField: _focusedField
-                            )
-                        }
-                        .frame(maxWidth: geometry.size.width - 32) // Fixed width based on screen
+                         BaseInputField(
+                            title: "Base 8",
+                            text: $viewModel.base8Input,
+                            isValid: viewModel.isBase8Valid,
+                            field: .base8,
+                            viewModel: viewModel,
+                            focusedField: _focusedField
+                        )
                         
-                        Spacer() // Push content to the top
+                        BaseInputField(
+                            title: "Base 10",
+                            text: $viewModel.base10Input,
+                            isValid: viewModel.isBase10Valid,
+                            field: .base10,
+                            viewModel: viewModel,
+                            focusedField: _focusedField
+                        )
+                        
+                        BaseInputField(
+                            title: "Base 12",
+                            text: $viewModel.base12Input,
+                            isValid: viewModel.isBase12Valid,
+                            field: .base12,
+                            viewModel: viewModel,
+                            focusedField: _focusedField
+                        )
+                        
+                        BaseInputField(
+                            title: "Base 16",
+                            text: $viewModel.base16Input,
+                            isValid: viewModel.isBase16Valid,
+                            field: .base16,
+                            viewModel: viewModel,
+                            focusedField: _focusedField
+                        )
+                        .frame(maxWidth: geometry.size.width - 32) // Fixed width based on screen
                     }
                     .padding(.horizontal)
                     .padding(.top, 8)
@@ -96,9 +91,9 @@ struct ContentView: View {
                         errorMessage: viewModel.errorMessage,
                         validationMessage: viewModel.validationMessage
                     )
-                    .frame(height: geometry.size.height * 0.50)
+                    .frame(height: geometry.size.height * 0.55)
                 }
-                .navigationTitle("Base Converter")
+               .navigationTitle("Base Converter")
                 .toolbar {
                     // Add info button to leading edge of toolbar
                     ToolbarItem(placement: .navigationBarLeading) {
