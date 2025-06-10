@@ -16,25 +16,10 @@ final class ContentViewTests: XCTestCase {
         // Let the conversions happen
         await Task.yield()
     }
-    
-    // Helper functions that mimic ContentView's logic but don't use StateObject
-    func incrementValue() {
-        if let currentDecimal = Int(viewModel.base10Input) {
-            let newDecimal = currentDecimal + 1
-            viewModel.base10Input = String(newDecimal)
-        }
-    }
-    
-    func decrementValue() {
-        if let currentDecimal = Int(viewModel.base10Input) {
-            let newDecimal = currentDecimal - 1
-            viewModel.base10Input = String(newDecimal)
-        }
-    }
-    
+
     func testIncrement() async {
         // Test incrementing with base10 input
-        incrementValue()
+        viewModel.incrementValue()
         await Task.yield() // Allow async updates to complete
         
         // Check that the value was incremented
@@ -49,7 +34,7 @@ final class ContentViewTests: XCTestCase {
     
     func testDecrement() async {
         // Test decrementing with base10 input
-        decrementValue()
+        viewModel.decrementValue()
         await Task.yield() // Allow async updates to complete
         
         // Check that the value was decremented
@@ -69,7 +54,7 @@ final class ContentViewTests: XCTestCase {
         await Task.yield()
         
         // Increment
-        incrementValue()
+        viewModel.incrementValue()
         await Task.yield()
         
         // Check that value changed from 0 to 1
@@ -86,7 +71,7 @@ final class ContentViewTests: XCTestCase {
         await Task.yield()
         
         // Decrement
-        decrementValue()
+        viewModel.decrementValue()
         await Task.yield()
         
         // Check that value changed from 0 to -1
@@ -103,7 +88,7 @@ final class ContentViewTests: XCTestCase {
         await Task.yield()
         
         // Increment
-        incrementValue()
+        viewModel.incrementValue()
         await Task.yield()
         
         // Check that value changed from -5 to -4
@@ -120,7 +105,7 @@ final class ContentViewTests: XCTestCase {
         await Task.yield()
         
         // Decrement
-        decrementValue()
+        viewModel.decrementValue()
         await Task.yield()
         
         // Check that value changed from -5 to -6
@@ -136,16 +121,16 @@ final class ContentViewTests: XCTestCase {
         viewModel.base10Input = ""
         await Task.yield()
         
-        // Increment should do nothing with empty input
-        incrementValue()
+        // Increment should set the value to "1"
+        viewModel.incrementValue()
         await Task.yield()
         
-        // Check that values remain empty
-        XCTAssertEqual(viewModel.base10Input, "")
-        XCTAssertEqual(viewModel.base2Input, "")
-        XCTAssertEqual(viewModel.base8Input, "")
-        XCTAssertEqual(viewModel.base12Input, "")
-        XCTAssertEqual(viewModel.base16Input, "")
+        // Check that values are updated to 1
+        XCTAssertEqual(viewModel.base10Input, "1")
+        XCTAssertEqual(viewModel.base2Input, "1")
+        XCTAssertEqual(viewModel.base8Input, "1")
+        XCTAssertEqual(viewModel.base12Input, "1")
+        XCTAssertEqual(viewModel.base16Input, "1")
     }
     
     func testDecrementEmptyInput() async {
@@ -153,16 +138,16 @@ final class ContentViewTests: XCTestCase {
         viewModel.base10Input = ""
         await Task.yield()
         
-        // Decrement should do nothing with empty input
-        decrementValue()
+        // Decrement should set the value to "-1"
+        viewModel.decrementValue()
         await Task.yield()
         
-        // Check that values remain empty
-        XCTAssertEqual(viewModel.base10Input, "")
-        XCTAssertEqual(viewModel.base2Input, "")
-        XCTAssertEqual(viewModel.base8Input, "")
-        XCTAssertEqual(viewModel.base12Input, "")
-        XCTAssertEqual(viewModel.base16Input, "")
+        // Check that values are updated to -1
+        XCTAssertEqual(viewModel.base10Input, "-1")
+        XCTAssertEqual(viewModel.base2Input, "-1")
+        XCTAssertEqual(viewModel.base8Input, "-1")
+        XCTAssertEqual(viewModel.base12Input, "-1")
+        XCTAssertEqual(viewModel.base16Input, "-1")
     }
     
     func testIncrementInvalidInput() async {
@@ -171,7 +156,7 @@ final class ContentViewTests: XCTestCase {
         await Task.yield()
         
         // Increment should do nothing with invalid input
-        incrementValue()
+        viewModel.incrementValue()
         await Task.yield()
         
         // Check that invalid value remains unchanged
@@ -184,10 +169,42 @@ final class ContentViewTests: XCTestCase {
         await Task.yield()
         
         // Decrement should do nothing with invalid input
-        decrementValue()
+        viewModel.decrementValue()
         await Task.yield()
         
         // Check that invalid value remains unchanged
         XCTAssertEqual(viewModel.base10Input, "ABC")
+    }
+    
+    // Test incrementing at the maximum value
+    func testIncrementAtMaxValue() async {
+        // Set value to max
+        viewModel.base10Input = String(viewModel.maxValue)
+        await Task.yield()
+        
+        // Increment
+        viewModel.incrementValue()
+        await Task.yield()
+        
+        // Check that value did not change and error message is set
+        XCTAssertEqual(viewModel.base10Input, String(viewModel.maxValue))
+        XCTAssertNotNil(viewModel.errorMessage)
+        XCTAssertEqual(viewModel.errorMessage, BaseConverterError.resultOutOfRange(min: viewModel.minValue, max: viewModel.maxValue).message)
+    }
+    
+    // Test decrementing at the minimum value
+    func testDecrementAtMinValue() async {
+        // Set value to min
+        viewModel.base10Input = String(viewModel.minValue)
+        await Task.yield()
+        
+        // Decrement
+        viewModel.decrementValue()
+        await Task.yield()
+        
+        // Check that value did not change and error message is set
+        XCTAssertEqual(viewModel.base10Input, String(viewModel.minValue))
+        XCTAssertNotNil(viewModel.errorMessage)
+        XCTAssertEqual(viewModel.errorMessage, BaseConverterError.resultOutOfRange(min: viewModel.minValue, max: viewModel.maxValue).message)
     }
 } 

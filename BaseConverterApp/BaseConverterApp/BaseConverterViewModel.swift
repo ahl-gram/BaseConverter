@@ -245,9 +245,16 @@ class BaseConverterViewModel: ObservableObject {
         if let currentDecimal = Int(base10Input) {
             // Increment by 1
             let newDecimal = currentDecimal + 1
-            // Update the base10 field
-            base10Input = String(newDecimal)
-            // Conversions to other bases happen automatically through binding
+            // Update the base10 field if within range
+            if newDecimal <= maxValue {
+                base10Input = String(newDecimal)
+                // Conversions to other bases happen automatically through binding
+            } else {
+                errorMessage = BaseConverterError.resultOutOfRange(min: minValue, max: maxValue).message
+            }
+        } else if base10Input.isEmpty {
+            // If the input is empty, start from 1
+            base10Input = "1"
         }
     }
     
@@ -257,9 +264,16 @@ class BaseConverterViewModel: ObservableObject {
         if let currentDecimal = Int(base10Input) {
             // Decrement by 1
             let newDecimal = currentDecimal - 1
-            // Update the base10 field
-            base10Input = String(newDecimal)
-            // Conversions to other bases happen automatically through binding
+            // Update the base10 field if within range
+            if newDecimal >= minValue {
+                base10Input = String(newDecimal)
+                // Conversions to other bases happen automatically through binding
+            } else {
+                errorMessage = BaseConverterError.resultOutOfRange(min: minValue, max: maxValue).message
+            }
+        } else if base10Input.isEmpty {
+            // If the input is empty, start from -1
+            base10Input = "-1"
         }
     }
     
