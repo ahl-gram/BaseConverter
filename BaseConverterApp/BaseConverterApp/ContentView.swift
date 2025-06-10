@@ -31,7 +31,7 @@ struct ContentView: View {
         NavigationView {
             // Use GeometryReader for size information
             GeometryReader { geometry in
-                VStack(spacing: 0) {
+                VStack(spacing: 10) {
                     // Content section with input fields and messages
                     VStack(alignment: .leading, spacing: 4) {
                         BaseInputField(
@@ -81,7 +81,7 @@ struct ContentView: View {
                         .frame(maxWidth: geometry.size.width - 32) // Fixed width based on screen
                     }
                     .padding(.horizontal)
-                    .padding(.top, 8)
+                    .padding(.top, -50)
                     .frame(height: geometry.size.height * 0.50)
                     
                     // Add the custom keyboard at the bottom
@@ -93,7 +93,6 @@ struct ContentView: View {
                     )
                     .frame(height: geometry.size.height * 0.55)
                 }
-               .navigationTitle("Base Converter")
                 .toolbar {
                     // Add info button to leading edge of toolbar
                     ToolbarItem(placement: .navigationBarLeading) {
@@ -104,6 +103,12 @@ struct ContentView: View {
                                 .foregroundColor(.gray)
                         }
                         .accessibilityLabel("About")
+                    }
+                    
+                    // Add title to the center of the toolbar
+                    ToolbarItem(placement: .principal) {
+                        Text("Base Converter")
+                            .font(.headline)
                     }
                     
                     // Keep existing reset button in trailing position
