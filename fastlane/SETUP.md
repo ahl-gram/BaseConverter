@@ -1,0 +1,101 @@
+# Release automation setup
+
+Named `SETUP.md` rather than `README.md` on purpose: `fastlane docs` regenerates
+`fastlane/README.md` and would silently overwrite these instructions.
+
+## One-time: create an App Store Connect API key
+
+Nothing here works until this exists. It replaces Apple ID and password auth,
+which is what makes unattended releases possible (no 2FA prompt).
+
+1. Sign in to [App Store Connect](https://appstoreconnect.apple.com).
+2. Go to **Users and Access** then the **Integrations** tab, and pick
+   **App Store Connect API** (Team Keys).
+3. Click **+** to generate a key.
+
+   **Name:** `route12b-fastlane`. The name is only a label, but it should say
+   what consumes the key so that future-you can revoke the right one without
+   guessing. If a hosted CI service is ever added, give it its own separate key
+   (`route12b-ci`) so either can be revoked independently.
+
+   **Role: App Manager.** This is the minimum that works, and the choice is
+   load-bearing:
+
+   | Role | Upload builds | Submit for review |
+   |---|---|---|
+   | Developer | yes | **no** |
+   | App Manager | yes | yes |
+   | Admin | yes | yes |
+
+   A Developer key would let `fastlane beta` succeed and then fail
+   `fastlane release`, which is a confusing way to discover the problem. Admin
+   works too but grants more than releasing needs, including user management.
+
+   One key covers every app on the team, so a single key serves Base Converter,
+   Prime Finder, Sorting Visualizer, and Vibe Exchange. There is no need for one
+   key per app.
+4. **Download the `.p8` file immediately.** Apple allows exactly one download.
+   If you lose it you must revoke the key and start over.
+5. Record two identifiers from that page, which are different things and are
+   easy to mix up:
+   - **Key ID**, a short string shown on the key's row
+   - **Issuer ID**, a UUID shown above the key list, shared by all your keys
+
+## Store the key outside the repo
+
+```
+mkdir -p ~/.appstoreconnect/private_keys
+mv ~/Downloads/AuthKey_XXXXXXXXXX.p8 ~/.appstoreconnect/private_keys/
+chmod 600 ~/.appstoreconnect/private_keys/AuthKey_XXXXXXXXXX.p8
+```
+
+Never commit the `.p8`. It is a credential that can upload and submit builds on
+your behalf. `.gitignore` blocks `*.p8`, but the safest place is outside any
+repository, which is what the path above does.
+
+## Set the environment variables
+
+Add to `~/.zshrc`, or keep them in a local `.env` (which is gitignored):
+
+```
+export ASC_KEY_ID="XXXXXXXXXX"
+export ASC_ISSUER_ID="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+export ASC_KEY_PATH="~/.appstoreconnect/private_keys/AuthKey_XXXXXXXXXX.p8"
+```
+
+The Fastfile checks all three up front and fails with a clear message if any is
+missing, rather than failing later inside an upload.
+
+## Lanes
+
+Run these from the repository root.
+
+| Command | What it does |
+|---|---|
+| `fastlane test` | Runs the full test suite on a simulator. No credentials needed. |
+| `fastlane beta` | Builds, bumps the build number, uploads to TestFlight. |
+| `fastlane release` | Builds, uploads, and submits to App Review. |
+
+`fastlane release` deliberately does **not** auto-release on approval
+(`automatic_release: false`). After Apple approves, you still press the button
+in App Store Connect. Use `beta` as the everyday lane and treat `release` as a
+separate, deliberate act.
+
+Both upload lanes set the build number to one above the highest build already on
+App Store Connect, so local build numbers cannot collide with Apple's.
+
+## Metadata and screenshots
+
+`release` runs with `skip_metadata` and `skip_screenshots`, so it uploads the
+binary and submits without touching the App Store listing text or images you
+maintain by hand. If you later want fastlane to own those, run `fastlane deliver
+init` to pull the current listing into `fastlane/metadata`, then remove those
+two flags.
+
+## Export compliance
+
+The app declares `ITSAppUsesNonExemptEncryption = NO` in the build settings, and
+the release lane passes the matching `export_compliance_uses_encryption: false`.
+These two must always agree; if they diverge, submissions get rejected. The
+declaration is correct because the app ships no custom cryptography and makes no
+network calls at all. If that ever changes, update both places together.
