@@ -8,9 +8,9 @@ Base 12 with Dozenal-style `X` (10) and `E` (11) digits is the app's distinguish
 
 **Invoke the `liquid-glass-design` skill before writing or modifying any UI in this project.**
 
-**Migration in flight:** this app is moving to an iOS 26 deployment target and the Liquid Glass idiom, matching its sibling PrimeFinder (issue #12, item 4). Bumping `IPHONEOS_DEPLOYMENT_TARGET` in the pbxproj is the first step and may not have landed yet, so check the pbxproj before emitting `.glassEffect`, `GlassEffectContainer`, or `.buttonStyle(.glass)`, since those require iOS 26 and will not compile against the old target.
+The deployment target is **iOS 26.0** across all three targets, so the Liquid Glass APIs (`.glassEffect`, `GlassEffectContainer`, `.buttonStyle(.glass)`) are available and will compile.
 
-The app currently has **no animations at all** (`withAnimation`, `.animation(`, `.transition(` appear nowhere). Glass adoption is the natural moment to add motion; treat it as a deliberate design pass, not a find-and-replace.
+**The UI has not adopted them yet.** That adoption is the remaining work on issue #12 item 4, and it is a deliberate design pass rather than a find-and-replace. The app currently has **no animations at all** (`withAnimation`, `.animation(`, `.transition(` appear nowhere), so glass is also the moment to decide what should move. Render the result and look at it; the test suite is all logic and cannot see layout.
 
 ## Repo layout
 
@@ -34,7 +34,7 @@ Any older path reference of the form `BaseConverterApp/BaseConverterApp/BaseConv
 - Swift + SwiftUI. **Zero external dependencies**: no SPM, CocoaPods, or Carthage.
 - No StoreKit, IAP, ads, analytics, networking, or persistence. Every launch starts empty.
 - iPhone-only, portrait-only.
-- Deployment target, Swift version, and version/build numbers live in the pbxproj. Read them there rather than trusting docs. Note the app target and the project-level default differ.
+- Deployment target, Swift version, and version/build numbers live in the pbxproj. Read them there rather than trusting docs.
 - `objectVersion = 77` (file-system-synchronized project). New Swift files need no pbxproj entry.
 
 ## Architecture
@@ -59,6 +59,7 @@ The system keyboard cannot type hex `A-F` or duodecimal `X`/`E`, so every field 
 ## Gotchas
 
 - **Two visually identical `E` keys exist** (`E_DUO` and `E_HEX`), distinguished internally so each lights up only for its own base. Do not "deduplicate" them.
+- Raising the target to 26.0 surfaced three deprecation warnings that the old low target had been suppressing. All still compile and all tests pass, but clean them up as part of the glass pass: `UIScreen.main` (`CustomKeyboard.swift:4`), `onChange(of:perform:)` (`BaseInputField.swift:27`), and `UIWindow.init(frame:)` (`KeyboardDisabledTextFieldTests.swift:82`).
 - **The ViewModel cleans input in `didSet` observers and re-dispatches via `DispatchQueue.main.asyncAfter(deadline: .now() + 0.1)` to avoid infinite recursion** (`BaseConverterViewModel.swift`, two sites). This guard is timing-based rather than structural: it is fragile, and any refactor of field-update flow must account for it.
 - **Error message text is never shown on screen.** Sighted users see only a red triangle icon; the message exists solely as an `accessibilityLabel`. VoiceOver users get strictly more information than sighted users.
 - **No clipboard support anywhere**: `UIPasteboard` is entirely absent, so results can only leave the app by retyping. Tracked in issue #12.
