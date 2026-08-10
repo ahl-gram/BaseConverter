@@ -70,7 +70,8 @@ The system keyboard cannot type hex `A-F` or duodecimal `X`/`E`, so every field 
 ## Building & testing
 
 - Open `BaseConverterApp.xcodeproj` at the git root in Xcode. Build Cmd+B, test Cmd+U, or `xcodebuild` / `xcodebuild test`.
-- The simulator on this Mac is currently unusable (`CoreSimulator is out of date`), so CLI verification must target a device: `xcodebuild -project BaseConverterApp.xcodeproj -target BaseConverterApp -destination 'generic/platform=iOS' build CODE_SIGNING_ALLOWED=NO`. That compiles but cannot run tests.
+- Run the suite from the CLI against an iOS 26 simulator: `xcodebuild test -project BaseConverterApp.xcodeproj -scheme BaseConverterApp -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.2'`.
+- If `xcodebuild` ever reports `CoreSimulator is out of date`, simulator support is disabled entirely and no tests can run. The compile-only fallback is `-destination 'generic/platform=iOS' build CODE_SIGNING_ALLOWED=NO`, which verifies compilation but not behavior.
 - XCTest, not Swift Testing. Logic coverage is solid; UI tests are boilerplate launch tests only.
 
 ## Related projects
