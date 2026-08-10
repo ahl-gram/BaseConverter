@@ -23,6 +23,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Run the full test suite on a simulator
 
+### ios verify_auth
+
+```sh
+[bundle exec] fastlane ios verify_auth
+```
+
+Check the App Store Connect API key works. Read-only, uploads nothing.
+
 ### ios beta
 
 ```sh
