@@ -85,8 +85,20 @@ way to tell a broken key apart from a broken build.
 in App Store Connect. Use `beta` as the everyday lane and treat `release` as a
 separate, deliberate act.
 
-Both upload lanes set the build number to one above the highest build already on
-App Store Connect, so local build numbers cannot collide with Apple's.
+## Build numbering
+
+Both upload lanes set the build number to one above the highest Apple has ever
+seen, checking **three** sources: TestFlight, the live App Store build, and the
+number already in the project.
+
+Checking TestFlight alone is not enough, and this app proves why. TestFlight
+builds expire after 90 days but App Store builds do not, so Base Converter
+currently reports zero TestFlight builds while being live at build 13. A
+TestFlight-only check would propose build 1, and Apple would reject the upload
+for not being higher than an existing build.
+
+`fastlane verify_auth` prints all three numbers, so you can see what the next
+build will be before running an upload.
 
 ## Metadata and screenshots
 
