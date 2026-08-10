@@ -73,8 +73,12 @@ Run these from the repository root.
 | Command | What it does |
 |---|---|
 | `fastlane test` | Runs the full test suite on a simulator. No credentials needed. |
+| `fastlane verify_auth` | Checks the API key works. Read-only, uploads nothing. |
 | `fastlane beta` | Builds, bumps the build number, uploads to TestFlight. |
 | `fastlane release` | Builds, uploads, and submits to App Review. |
+
+Run `fastlane verify_auth` first after any credential change. It is the cheapest
+way to tell a broken key apart from a broken build.
 
 `fastlane release` deliberately does **not** auto-release on approval
 (`automatic_release: false`). After Apple approves, you still press the button
@@ -91,6 +95,28 @@ binary and submits without touching the App Store listing text or images you
 maintain by hand. If you later want fastlane to own those, run `fastlane deliver
 init` to pull the current listing into `fastlane/metadata`, then remove those
 two flags.
+
+## Troubleshooting
+
+**"A required agreement is missing or has expired."**
+
+Your key is fine. This error can only come back from an authenticated request,
+so receiving it proves the JWT was accepted. Apple is blocking the API at the
+account level because an agreement is pending or has expired, which happens
+whenever Apple revises the Developer Program License Agreement or the Paid
+Applications Agreement.
+
+Fix it in App Store Connect under **Business**, previously called **Agreements,
+Tax, and Banking**, by reviewing the list and accepting anything marked pending
+or expired. Only the Account Holder can accept. It blocks every API operation
+and the App Store Connect UI equally, so it would have stopped a manual release
+too.
+
+**"Authentication credentials are missing or invalid."**
+
+This one *is* a credential problem. Check that the Key ID matches the filename,
+that the Issuer ID is the UUID from the top of the Integrations page rather than
+the key's own ID, and that `ASC_KEY_PATH` points at a readable `.p8`.
 
 ## Export compliance
 
