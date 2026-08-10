@@ -82,6 +82,13 @@ fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
 
+# Credentials. Never commit these.
+# The App Store Connect API key can upload and submit builds on your behalf.
+# It belongs outside any repository; see fastlane/SETUP.md.
+*.p8
+.env
+.env.*
+
 # Code Injection
 #
 # After new code Injection tools there's a generated folder /iOSInjectionProject

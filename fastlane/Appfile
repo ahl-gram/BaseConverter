@@ -1,0 +1,5 @@
+app_identifier("com.route12b.BaseConverterApp")
+team_id("ER34UHDWG6")
+
+# Apple ID is intentionally omitted. Authentication goes through the App Store
+# Connect API key configured in Fastfile, not through an Apple ID and password.

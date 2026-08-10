@@ -1,0 +1,124 @@
+# Base Converter release automation.
+#
+# Requires an App Store Connect API key. See fastlane/README.md for how to
+# create one and which environment variables to set. Nothing secret belongs
+# in this file or anywhere else in the repo.
+
+default_platform(:ios)
+opt_out_usage
+
+PROJECT     = "BaseConverterApp.xcodeproj"
+SCHEME      = "BaseConverterApp"
+TEST_DEVICE = "iPhone 17 Pro"
+
+# Export compliance. This MUST stay in agreement with
+# INFOPLIST_KEY_ITSAppUsesNonExemptEncryption in the pbxproj. If the two ever
+# disagree, App Store Connect rejects the submission. The app ships no custom
+# cryptography and makes no network calls, so it is exempt.
+USES_NON_EXEMPT_ENCRYPTION = false
+
+platform :ios do
+  desc "Run the full test suite on a simulator"
+  lane :test do
+    run_tests(
+      project: PROJECT,
+      scheme: SCHEME,
+      devices: [TEST_DEVICE]
+    )
+  end
+
+  desc "Check the App Store Connect API key works. Read-only, uploads nothing."
+  lane :verify_auth do
+    key = asc_api_key
+    UI.success("Authenticated to App Store Connect.")
+    UI.message("Highest TestFlight build: #{testflight_build(key)}")
+    UI.message("Live App Store build:     #{app_store_build(key)}")
+    UI.message("Next build number would be: #{next_build_number(key)}")
+  end
+
+  desc "Build and upload a build to TestFlight"
+  lane :beta do
+    key = asc_api_key
+    bump_build_number(key)
+    build_release_ipa
+    upload_to_testflight(
+      api_key: key,
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  desc "Build, upload, and submit to App Review. Does NOT auto-release on approval."
+  lane :release do
+    key = asc_api_key
+    bump_build_number(key)
+    build_release_ipa
+    upload_to_app_store(
+      api_key: key,
+      submit_for_review: true,
+      automatic_release: false,
+      force: true,                 # skip the interactive HTML preview
+      skip_metadata: true,         # the App Store listing is maintained by hand
+      skip_screenshots: true,
+      precheck_include_in_app_purchases: false,
+      submission_information: {
+        export_compliance_uses_encryption: USES_NON_EXEMPT_ENCRYPTION,
+        add_id_info_uses_idfa: false
+      }
+    )
+  end
+end
+
+# Fails loudly and early if credentials are missing, rather than surfacing a
+# confusing authentication error partway through an upload.
+def asc_api_key
+  missing = %w[ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_PATH].reject { |v| ENV[v].to_s.strip != "" }
+  unless missing.empty?
+    UI.user_error!("Missing environment variable(s): #{missing.join(', ')}. See fastlane/SETUP.md.")
+  end
+
+  key_path = File.expand_path(ENV["ASC_KEY_PATH"])
+  UI.user_error!("ASC_KEY_PATH does not exist: #{key_path}") unless File.exist?(key_path)
+
+  app_store_connect_api_key(
+    key_id: ENV["ASC_KEY_ID"],
+    issuer_id: ENV["ASC_ISSUER_ID"],
+    key_filepath: key_path
+  )
+end
+
+def testflight_build(key)
+  latest_testflight_build_number(api_key: key, initial_build_number: 0).to_i
+end
+
+def app_store_build(key)
+  app_store_build_number(api_key: key, live: true, initial_build_number: 0).to_i
+end
+
+# Apple rejects any upload whose build number is not higher than every build it
+# has already seen, and TestFlight builds expire after 90 days while App Store
+# builds do not. Asking TestFlight alone therefore under-reports: this app has
+# no TestFlight builds but is live on the App Store at build 13, so a
+# TestFlight-only check would propose build 1 and be rejected. Take the highest
+# number from either source, and never go below what the project already
+# declares locally.
+def next_build_number(key)
+  [
+    testflight_build(key),
+    app_store_build(key),
+    get_build_number(xcodeproj: PROJECT).to_i
+  ].max + 1
+end
+
+def bump_build_number(key)
+  next_number = next_build_number(key)
+  UI.message("Setting build number to #{next_number}")
+  increment_build_number(xcodeproj: PROJECT, build_number: next_number)
+end
+
+def build_release_ipa
+  build_app(
+    project: PROJECT,
+    scheme: SCHEME,
+    export_method: "app-store"
+  )
+end
